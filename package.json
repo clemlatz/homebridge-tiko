@@ -33,7 +33,9 @@
     "homebridge-tiko",
     "tiko"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "graphql-request": "^6.1.0"
+  },
   "devDependencies": {
     "@types/node": "^18.16.20",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
