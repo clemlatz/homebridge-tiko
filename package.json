@@ -1,8 +1,8 @@
 {
-  "private": true,
-  "displayName": "Plugin Name",
-  "name": "homebridge-plugin-name",
-  "version": "1.0.0",
+  "private": false,
+  "displayName": "Tiko",
+  "name": "homebridge-tiko",
+  "version": "0.0.0",
   "description": "A short description about what your plugin does.",
   "author": {
     "name": "Clément Latzarus",
@@ -12,10 +12,10 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "https://github.com/clemlatz/homebridge-tiko.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/clemlatz/homebridge-tiko/issues"
   },
   "engines": {
     "node": "^18.17.0 || ^20.9.0",

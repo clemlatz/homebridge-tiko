@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
+  "pluginAlias": "Tiko",
   "pluginType": "platform",
   "singular": true,
   "schema": {
