@@ -6,10 +6,31 @@
     "type": "object",
     "properties": {
       "name": {
-        "title": "Name",
+        "title": "Nom de la plateforme",
         "type": "string",
         "required": true,
-        "default": "Example Dynamic Platform"
+        "default": "Tiko"
+      },
+      "login": {
+        "title": "Login Tiko",
+        "type": "string",
+        "required": true
+      },
+      "password": {
+        "title": "Mot de passe Tiko",
+        "type": "string",
+        "required": true
+      },
+      "endpoint": {
+        "title": "Endpoint Tiko (facultatif)",
+        "type": "string",
+        "required": false,
+        "default": "https://particuliers-tiko.fr"
+      },
+      "propertyId": {
+        "title": "Identifiant de propriété (facultatif)",
+        "type": "number",
+        "required": false
       }
     }
   }
