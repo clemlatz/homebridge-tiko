@@ -5,11 +5,13 @@ in the Apple Home app, by connecting the [Tiko](https://www.tiko.fr)
 platform to HomeKit through Homebridge.
 
 Available Features:
-- Display temperature in each room
+- Display current and target temperature in each room
+- Display heaters current active status 
 
 TODO:
-- Control temperature
-- Display other metrics
+- Allow to control temperature
+- Allow to set boost/absence/frost/off/auto modes
+- Display humidity metrics
 
 ## Installation instructions
 
