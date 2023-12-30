@@ -29,6 +29,12 @@ export class TikoAccessory {
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getCurrentTemperature.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
+      .onGet(this.getCurrentHeatingCoolingState.bind(this));
+
+    this.service.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
+      .onGet(this.getCurrentHeatingCoolingState.bind(this));
   }
 
   async getTargetTemperature(): Promise<CharacteristicValue> {
@@ -40,6 +46,13 @@ export class TikoAccessory {
     return await this._getValueFor('currentTemperatureDegrees');
   }
 
+  async getCurrentHeatingCoolingState(): Promise<CharacteristicValue> {
+    const heatingOperating = await this._getStatusFor('heatingOperating');
+    return heatingOperating ?
+      this.platform.Characteristic.CurrentHeatingCoolingState.HEAT :
+      this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
+  }
+
   private async _getValueFor(key: string) {
     const {id, name} = this.accessory.context.room;
 
@@ -48,6 +61,22 @@ export class TikoAccessory {
     const value = room[key];
 
     this.platform.log.debug(`GET "${key}" for room "${name}": ${value}`);
+
+    if (value === null) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+
+    return value;
+  }
+
+  private async _getStatusFor(key: string) {
+    const {id, name} = this.accessory.context.room;
+
+    const room = await this.platform.tiko.getRoom(id);
+
+    const value = room.status[key];
+
+    this.platform.log.debug(`GET status "${key}" for room "${name}": ${value}`);
 
     if (value === null) {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
