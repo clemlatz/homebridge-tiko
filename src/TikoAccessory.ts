@@ -19,6 +19,10 @@ export class TikoAccessory {
       this.accessory.addService(this.platform.Service.Thermostat);
 
     this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.room.name);
+    this.service.setCharacteristic(
+      this.platform.Characteristic.TemperatureDisplayUnits,
+      this.platform.Characteristic.TemperatureDisplayUnits.CELSIUS,
+    );
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
       .onGet(this.getTargetTemperature.bind(this));
