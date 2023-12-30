@@ -36,6 +36,6 @@ export class TikoAccessory {
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
 
-    return this.accessory.context.room.currentTemperatureDegrees;
+    return currentTemperatureDegrees;
   }
 }
