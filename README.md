@@ -1,28 +1,42 @@
-<p align="center">
+# homebridge-tiko
 
-<img src="https://github.com/homebridge/branding/raw/latest/logos/homebridge-wordmark-logo-vertical.png" width="150">
+The **homebridge-tiko** plugin allows you to control Tiko-connected heaters
+in the Apple Home app, by connecting the [Tiko](https://www.tiko.fr) 
+platform to HomeKit through Homebridge.
 
-</p>
+Available Features:
+- Display temperature in each room
 
-<span align="center">
+TODO:
+- Control temperature
+- Display other metrics
 
-# Homebridge Platform Plugin Template
+## Installation instructions
 
-</span>
+1. [Install and configure Homebridge](https://github.com/homebridge/homebridge/wiki)
+2. Search for "homebridge-tiko" in Homebridge's "Plugins" tab
+3. Install plugin
+4. Configure plugin by filling login (e-mail) and password
 
-This is a template Homebridge dynamic platform plugin and can be used as a base to help you get started developing your own plugin.
+### Optional `endpoint` option
 
-This template should be used in conjunction with the [developer documentation](https://developers.homebridge.io/). A full list of all supported service types, and their characteristics is available on this site.
+Endpoint defaults to https://particuliers-tiko.fr but can be changed to
+another endpoint (eg. https://portal-engie.tiko.ch).
 
-### Clone As Template
+### Optional `propertyId` option
 
-Click the link below to create a new GitHub Repository using this template, or click the *Use This Template* button above.
+If your Tiko account is linked to multiple properties, homebridge-tiko
+will use the first property by default. You can specify another property id
+using the `propertyId` option.
 
-<span align="center">
+You can find the correct property id in the Tiko dashboard url:
 
-### [Create New Repository From Template](https://github.com/homebridge/homebridge-plugin-template/generate)
+```
+https://particuliers-tiko.fr/dashboard/{propertyId}
+```
 
-</span>
+
+## Development documentation
 
 ### Setup Development Environment
 
