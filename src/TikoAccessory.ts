@@ -1,4 +1,4 @@
-import { Service, PlatformAccessory, CharacteristicValue } from 'homebridge';
+import {Service, PlatformAccessory, CharacteristicValue} from 'homebridge';
 
 import { TikoPlatform } from './TikoPlatform';
 
@@ -20,11 +20,33 @@ export class TikoAccessory {
 
     this.service.setCharacteristic(this.platform.Characteristic.Name, accessory.context.room.name);
 
+    this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
+      .onGet(this.getTargetTemperature.bind(this));
+
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
-      .onGet(this.getTemperature.bind(this));
+      .onGet(this.getCurrentTemperature.bind(this));
   }
 
-  async getTemperature(): Promise<CharacteristicValue> {
+  async getTargetTemperature(): Promise<CharacteristicValue> {
+    const { id, name } = this.accessory.context.room;
+    const room = await this.platform.tiko.getRoom(id);
+
+    const targetTemperatureDegrees = room.targetTemperatureDegrees;
+
+    this.platform.log.debug(`Setting target temperature to ${targetTemperatureDegrees} for room ${name}`);
+
+    if (targetTemperatureDegrees === null) {
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+
+    if (targetTemperatureDegrees < 10) {
+      return 10;
+    }
+
+    return targetTemperatureDegrees;
+  }
+
+  async getCurrentTemperature(): Promise<CharacteristicValue> {
     const { id, name } = this.accessory.context.room;
     const room = await this.platform.tiko.getRoom(id);
 

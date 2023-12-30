@@ -24,7 +24,11 @@ export type TikoProperty = {
 export type TikoRoom = {
   id: number;
   name: string;
+  targetTemperatureDegrees: number;
   currentTemperatureDegrees: number;
+  status: {
+    heatingOperating: boolean;
+  };
 };
 
 export type TikoRoomResponse = {
