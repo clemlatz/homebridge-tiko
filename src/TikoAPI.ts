@@ -66,7 +66,6 @@ export default class TikoAPI {
     headers = headers || new Headers();
 
     const requestUrl = `${this.config.endpoint}/api/v3/graphql/`;
-    this.log.debug(`Querying ${requestUrl}…`);
     return await request(requestUrl, query, variables, headers) as TikoResponse;
   }
 
