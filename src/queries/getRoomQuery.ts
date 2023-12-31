@@ -1,5 +1,4 @@
-import { gql } from 'graphql-request';
-
+import {gql} from '@apollo/client/core';
 export const getRoomQuery = gql`
 query GET_PROPERTY_MODE_AND_ROOM($propertyId: Int!, $roomId: Int!) {
   property(id: $propertyId) {

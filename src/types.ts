@@ -1,19 +1,22 @@
-export type TikoResponse = TikoLoginResponse | TikoPropertyResponse | TikoRoomResponse;
 export type TikoLoginResponse = {
-  logIn: {
-    token: string;
-    user: {
-      properties: [
-        {
-          id: number;
-        }
-      ];
+  data : {
+    logIn: {
+      token: string;
+      user: {
+        properties: [
+          {
+            id: number;
+          }
+        ];
+      };
     };
   };
 };
 
 export type TikoPropertyResponse = {
-  property: TikoProperty;
+  data: {
+    property: TikoProperty;
+  };
 };
 
 export type TikoProperty = {
@@ -38,7 +41,9 @@ export type TikoRoom = {
 };
 
 export type TikoRoomResponse = {
-  property: {
-    room: TikoRoom;
+  data: {
+    property: {
+      room: TikoRoom;
+    };
   };
 };

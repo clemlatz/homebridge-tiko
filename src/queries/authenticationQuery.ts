@@ -1,4 +1,4 @@
-import {gql} from 'graphql-request';
+import {gql} from '@apollo/client/core';
 
 export const authenticationQuery = gql`
 mutation LogIn(
