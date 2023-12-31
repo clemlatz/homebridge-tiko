@@ -25,7 +25,8 @@ export class TikoAccessory {
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
-      .onGet(this.getTargetTemperature.bind(this));
+      .onGet(this.getTargetTemperature.bind(this))
+      .onSet(this.setTargetTemperature.bind(this));
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.getCurrentTemperature.bind(this));
@@ -40,6 +41,13 @@ export class TikoAccessory {
   async getTargetTemperature(): Promise<CharacteristicValue> {
     const value = await this._getValueFor('targetTemperatureDegrees');
     return value >= 10 ? value : 10;
+  }
+
+  async setTargetTemperature(value: CharacteristicValue): Promise<void> {
+    const {id, name} = this.accessory.context.room;
+    const targetTemperature = Number(value);
+    this.platform.log.debug(`SET target temperature for room "${name}" to ${value}`);
+    await this.platform.tiko.setTargetTemperature(id, targetTemperature);
   }
 
   async getCurrentTemperature(): Promise<CharacteristicValue> {
