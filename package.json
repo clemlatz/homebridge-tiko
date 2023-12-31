@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "Tiko",
   "name": "homebridge-tiko",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Control Tiko-connected heaters in the Apple Home app, by connecting the Tiko platform to HomeKit through Homebridge.",
   "author": {
     "name": "Clément Latzarus",
