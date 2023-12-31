@@ -26,6 +26,12 @@ export type TikoRoom = {
   name: string;
   targetTemperatureDegrees: number;
   currentTemperatureDegrees: number;
+  mode: {
+    boost: boolean;
+    absence: boolean;
+    frost: boolean;
+    disableHeating: boolean;
+  };
   status: {
     heatingOperating: boolean;
   };

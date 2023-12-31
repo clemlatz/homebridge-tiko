@@ -31,7 +31,7 @@ export class TikoAccessory {
       .onGet(this.getCurrentTemperature.bind(this));
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
-      .onGet(this.getCurrentHeatingCoolingState.bind(this));
+      .onGet(this.getTargetHeatingCoolingState.bind(this));
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
       .onGet(this.getCurrentHeatingCoolingState.bind(this));
@@ -47,10 +47,29 @@ export class TikoAccessory {
   }
 
   async getCurrentHeatingCoolingState(): Promise<CharacteristicValue> {
-    const heatingOperating = await this._getStatusFor('heatingOperating');
-    return heatingOperating ?
-      this.platform.Characteristic.CurrentHeatingCoolingState.HEAT :
-      this.platform.Characteristic.CurrentHeatingCoolingState.OFF;
+    const targetHeatingCoolingState = await this.getTargetHeatingCoolingState();
+    return targetHeatingCoolingState < 3 ? targetHeatingCoolingState : 2;
+  }
+
+  async getTargetHeatingCoolingState(): Promise<CharacteristicValue> {
+    const {id, name} = this.accessory.context.room;
+
+    const room = await this.platform.tiko.getRoom(id);
+
+    const modes = room.mode;
+
+    const currentMode = this._getCurrentMode(modes);
+    this.platform.log.debug(`GET mode for room "${name}": ${currentMode}`);
+
+    if (currentMode === 'boost' || currentMode === 'absence') {
+      return this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
+    }
+
+    if (currentMode === 'frost' || currentMode === 'disableHeating') {
+      return this.platform.Characteristic.TargetHeatingCoolingState.OFF;
+    }
+
+    return this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
   }
 
   private async _getValueFor(key: string) {
@@ -69,19 +88,13 @@ export class TikoAccessory {
     return value;
   }
 
-  private async _getStatusFor(key: string) {
-    const {id, name} = this.accessory.context.room;
-
-    const room = await this.platform.tiko.getRoom(id);
-
-    const value = room.status[key];
-
-    this.platform.log.debug(`GET status "${key}" for room "${name}": ${value}`);
-
-    if (value === null) {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+  private _getCurrentMode(modes: { boost: boolean; absence: boolean; frost: boolean; disableHeating: boolean }): string|null {
+    for (const mode in modes) {
+      if (modes[mode] === true) {
+        return mode;
+      }
     }
 
-    return value;
+    return null;
   }
 }
