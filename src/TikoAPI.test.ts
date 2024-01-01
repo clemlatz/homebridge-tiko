@@ -1,5 +1,5 @@
 import TikoAPI from './TikoAPI';
-import {Logger, PlatformConfig} from 'homebridge';
+import {PlatformConfig} from 'homebridge';
 import {ApolloClient, NormalizedCacheObject} from '@apollo/client/core';
 import {getRoomQuery} from './queries/getRoomQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
@@ -15,9 +15,6 @@ describe('#authenticate', () => {
       login: 'user@example.net',
       password: 'p4ssw0rd',
     } as PlatformConfig;
-    const logMock = {
-      debug: jest.fn(),
-    } as unknown as Logger;
     const userDetailsFromApi: TikoLoginResponse = {
       data: {
         logIn: {
@@ -30,7 +27,7 @@ describe('#authenticate', () => {
     };
     const clientMock = _mockClientAndRespond(userDetailsFromApi);
 
-    const tikoApi = new TikoAPI(configMock, logMock, clientMock);
+    const tikoApi = new TikoAPI(configMock, clientMock);
     tikoApi.setPropertyId = jest.fn();
 
     // when
@@ -58,9 +55,6 @@ describe('#authenticate', () => {
       password: 'p4ssw0rd',
       propertyId: 789,
     } as PlatformConfig;
-    const logMock = {
-      debug: jest.fn(),
-    } as unknown as Logger;
     const userDetailsFromApi: TikoLoginResponse = {
       data: {
         logIn: {
@@ -73,7 +67,7 @@ describe('#authenticate', () => {
     };
     const clientMock = _mockClientAndRespond(userDetailsFromApi);
 
-    const tikoApi = new TikoAPI(configMock, logMock, clientMock);
+    const tikoApi = new TikoAPI(configMock, clientMock);
     tikoApi.setPropertyId = jest.fn();
 
     // when
@@ -88,7 +82,6 @@ describe('#getProperty', () => {
   test('queries API and returns property for given id ', async () => {
     // given
     const configMock = {} as PlatformConfig;
-    const logMock = {} as Logger;
     const roomFromApi: TikoRoom = {
       id: 456,
       name: 'Garage',
@@ -104,7 +97,7 @@ describe('#getProperty', () => {
       },
     });
 
-    const tikoApi = new TikoAPI(configMock, logMock, clientMock);
+    const tikoApi = new TikoAPI(configMock, clientMock);
     tikoApi.setPropertyId(123);
 
     // when
@@ -123,7 +116,6 @@ describe('#getRoom', () => {
   test('queries API and returns room for given id ', async () => {
     // given
     const configMock = {} as PlatformConfig;
-    const logMock = {} as Logger;
     const roomFromApi: TikoRoom = {
       id: 456,
       name: 'Garage',
@@ -140,7 +132,7 @@ describe('#getRoom', () => {
       },
     });
 
-    const tikoApi = new TikoAPI(configMock, logMock, clientMock);
+    const tikoApi = new TikoAPI(configMock, clientMock);
     tikoApi.setPropertyId(123);
 
     // when
@@ -161,10 +153,9 @@ describe('#setTargetTemparature', () => {
 
     // given
     const configMock = {} as PlatformConfig;
-    const logMock = {} as Logger;
     const clientMock = _mockClientAndRespond(null);
 
-    const tikoApi = new TikoAPI(configMock, logMock, clientMock);
+    const tikoApi = new TikoAPI(configMock, clientMock);
     tikoApi.setPropertyId(123);
 
     // when

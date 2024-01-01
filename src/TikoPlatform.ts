@@ -1,7 +1,7 @@
 import {API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service, Characteristic, UnknownContext} from 'homebridge';
 
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings';
-import { TikoAccessory } from './TikoAccessory';
+import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
+import {TikoAccessory} from './TikoAccessory';
 import TikoAPI from './TikoAPI';
 import {TikoProperty, TikoRoom} from './types';
 
@@ -18,7 +18,7 @@ export class TikoPlatform implements DynamicPlatformPlugin {
   ) {
     this.log.debug('Finished initializing platform:', this.config.name);
 
-    this.tiko = TikoAPI.build(config, log);
+    this.tiko = TikoAPI.build(config);
 
     this.api.on('didFinishLaunching', async () => {
       log.debug('Executed didFinishLaunching callback');
@@ -33,6 +33,8 @@ export class TikoPlatform implements DynamicPlatformPlugin {
 
   async discoverDevices() {
     await this.tiko.authenticate();
+    this.log.debug(`Successfully logged in with account ${this.config.login}.`);
+
     const property = await this.tiko.getProperty();
 
     this._removeRoomNotExisting(property);

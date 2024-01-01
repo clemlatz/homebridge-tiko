@@ -1,4 +1,4 @@
-import {Logger, PlatformConfig} from 'homebridge';
+import {PlatformConfig} from 'homebridge';
 import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
@@ -11,18 +11,12 @@ export default class TikoAPI {
 
   constructor(
     private config: PlatformConfig,
-    private log: Logger,
     private client: ApolloClient<NormalizedCacheObject>,
   ) {
   }
 
   public async authenticate() {
     const {login, password} = this.config;
-
-    if (!login || !password) {
-      this.log.error('TikoAPI configuration not found.');
-      return;
-    }
 
     const {data} = await this.client.mutate({
       mutation: authenticationQuery,
@@ -41,8 +35,6 @@ export default class TikoAPI {
 
     const defaultPropertyId = data.logIn.user.properties[0].id;
     this.setPropertyId(this.config.propertyId || defaultPropertyId);
-
-    this.log.debug(`Successfully logged in with account ${login}.`);
   }
 
   public setPropertyId(value: number | null) {
@@ -76,13 +68,13 @@ export default class TikoAPI {
     });
   }
 
-  static build(config: PlatformConfig, log: Logger): TikoAPI {
+  static build(config: PlatformConfig): TikoAPI {
     const client = new ApolloClient({
       link: TikoAPI._createApolloLink(config),
       cache: new InMemoryCache(),
     });
 
-    return new TikoAPI(config, log, client);
+    return new TikoAPI(config, client);
   }
 
   private static _createApolloLink(config: PlatformConfig, userToken: string | null = null): ApolloLink {
