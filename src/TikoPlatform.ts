@@ -18,7 +18,7 @@ export class TikoPlatform implements DynamicPlatformPlugin {
   ) {
     this.log.debug('Finished initializing platform:', this.config.name);
 
-    this.tiko = new TikoAPI(config, log);
+    this.tiko = TikoAPI.build(config, log);
 
     this.api.on('didFinishLaunching', async () => {
       log.debug('Executed didFinishLaunching callback');

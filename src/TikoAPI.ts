@@ -3,20 +3,17 @@ import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
 import {TikoLoginResponse, TikoProperty, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
-import {ApolloClient, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
-import {setContext} from '@apollo/client/link/context';
+import {ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 
 export default class TikoAPI {
   private propertyId: number | null = null;
-  private userToken: string | null = null;
-  private client: ApolloClient<NormalizedCacheObject>;
 
   constructor(
     private config: PlatformConfig,
     private log: Logger,
+    private client: ApolloClient<NormalizedCacheObject>,
   ) {
-    this.client = this._createGraphQLClient();
   }
 
   public async authenticate() {
@@ -37,19 +34,22 @@ export default class TikoAPI {
       },
     }) as TikoLoginResponse;
 
-    this.userToken = data.logIn.token;
+    const userToken = data.logIn.token;
+
+    const authLink = TikoAPI._createApolloLink(this.config, userToken);
+    this.client.setLink(authLink);
 
     const defaultPropertyId = data.logIn.user.properties[0].id;
-    this.propertyId = this.config.propertyId || defaultPropertyId;
+    this.setPropertyId(this.config.propertyId || defaultPropertyId);
 
     this.log.debug(`Successfully logged in with account ${login}.`);
   }
 
-  public async getProperty(): Promise<TikoProperty> {
-    if (!this.userToken || !this.propertyId) {
-      throw new Error('TikoAPI is not authenticated');
-    }
+  public setPropertyId(value: number | null) {
+    this.propertyId = value;
+  }
 
+  public async getProperty(): Promise<TikoProperty> {
     const propertyResponse = await this.client.query({
       query: getPropertyQuery,
       variables: {id: this.propertyId},
@@ -58,10 +58,6 @@ export default class TikoAPI {
   }
 
   public async getRoom(roomId: number): Promise<TikoRoom> {
-    if (!this.userToken || !this.propertyId) {
-      throw new Error('TikoAPI is not authenticated');
-    }
-
     const roomResponse = await this.client.query({
       query: getRoomQuery,
       variables: {propertyId: this.propertyId, roomId: roomId},
@@ -80,24 +76,33 @@ export default class TikoAPI {
     });
   }
 
-  private _createGraphQLClient() {
-    const requestUrl = `${this.config.endpoint}/api/v3/graphql/`;
-    const httpLink = createHttpLink({
-      uri: requestUrl,
-    });
-
-    const authLink = setContext((_, {headers}) => {
-      return {
-        headers: {
-          ...headers,
-          authorization: this.userToken ? `token ${this.userToken}` : '',
-        },
-      };
-    });
-
-    return new ApolloClient({
-      link: authLink.concat(httpLink),
+  static build(config: PlatformConfig, log: Logger): TikoAPI {
+    const client = new ApolloClient({
+      link: TikoAPI._createApolloLink(config),
       cache: new InMemoryCache(),
     });
+
+    return new TikoAPI(config, log, client);
+  }
+
+  private static _createApolloLink(config: PlatformConfig, userToken: string | null = null): ApolloLink {
+    const requestUrl = `${config.endpoint}/api/v3/graphql/`;
+    const httpLink = createHttpLink({uri: requestUrl});
+
+    if (!userToken) {
+      return httpLink;
+    }
+
+    const authLink = new ApolloLink((operation, forward) => {
+      operation.setContext(({headers}) => ({
+        headers: {
+          ...headers,
+          authorization: `token ${userToken}`,
+        },
+      }));
+      return forward(operation);
+    });
+
+    return authLink.concat(httpLink);
   }
 }
