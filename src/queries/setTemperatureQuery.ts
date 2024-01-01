@@ -18,9 +18,7 @@ export const setTemperatureQuery = gql`
       active
       endDateTime
       temperature
-      __typename
     }
-    __typename
   }
 }
 `;
