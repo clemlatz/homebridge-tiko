@@ -2,7 +2,7 @@ import {PlatformConfig} from 'homebridge';
 import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
-import {TikoLoginResponse, TikoProperty, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
+import {TikoLoginResponse, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
 import {ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 
@@ -41,12 +41,12 @@ export default class TikoAPI {
     this.propertyId = value;
   }
 
-  public async getProperty(): Promise<TikoProperty> {
+  public async getAllRooms(): Promise<TikoRoom[]> {
     const propertyResponse = await this.client.query({
       query: getPropertyQuery,
       variables: {id: this.propertyId},
     }) as TikoPropertyResponse;
-    return propertyResponse.data.property;
+    return propertyResponse.data.property.rooms;
   }
 
   public async getRoom(roomId: number): Promise<TikoRoom> {

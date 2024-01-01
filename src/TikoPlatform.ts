@@ -3,7 +3,7 @@ import {API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, S
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {TikoAccessory} from './TikoAccessory';
 import TikoAPI from './TikoAPI';
-import {TikoProperty, TikoRoom} from './types';
+import {TikoRoom} from './types';
 
 export class TikoPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
@@ -35,11 +35,11 @@ export class TikoPlatform implements DynamicPlatformPlugin {
     await this.tiko.authenticate();
     this.log.debug(`Successfully logged in with account ${this.config.login}.`);
 
-    const property = await this.tiko.getProperty();
+    const rooms = await this.tiko.getAllRooms();
 
-    this._removeRoomNotExisting(property);
+    this._removeRoomNotExisting(rooms);
 
-    for (const room of property.rooms) {
+    for (const room of rooms) {
       const uuid = this.api.hap.uuid.generate(room.id.toString());
       const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
@@ -65,9 +65,9 @@ export class TikoPlatform implements DynamicPlatformPlugin {
     new TikoAccessory(this, existingAccessory);
   }
 
-  private _removeRoomNotExisting(property: TikoProperty) {
+  private _removeRoomNotExisting(rooms: TikoRoom[]) {
     for (const accessory of this.accessories) {
-      const room = property.rooms.find(room => room.id === accessory.context.room?.id);
+      const room = rooms.find(room => room.id === accessory.context.room?.id);
       if (!room) {
         this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
         this.log.info('Removing accessory not matching a room from cache:', accessory.displayName);

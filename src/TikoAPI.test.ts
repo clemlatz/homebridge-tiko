@@ -78,7 +78,7 @@ describe('#authenticate', () => {
   });
 });
 
-describe('#getProperty', () => {
+describe('#getAllRooms', () => {
   test('queries API and returns property for given id ', async () => {
     // given
     const configMock = {} as PlatformConfig;
@@ -101,14 +101,14 @@ describe('#getProperty', () => {
     tikoApi.setPropertyId(123);
 
     // when
-    const returnedRoom = await tikoApi.getProperty();
+    const returnedRooms = await tikoApi.getAllRooms();
 
     // then
     expect(clientMock.query).toHaveBeenCalledWith({
       query: getPropertyQuery,
       variables: {id: 123},
     });
-    expect(returnedRoom).toBe(propertyFromApi);
+    expect(returnedRooms).toStrictEqual([roomFromApi]);
   });
 });
 
