@@ -10,10 +10,10 @@ export class TikoAccessory {
     private readonly accessory: PlatformAccessory,
   ) {
 
-    this.accessory.getService(this.platform.Service.AccessoryInformation)!
-      .setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer')
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
-      .setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+    const service = this.accessory.getService(this.platform.Service.AccessoryInformation)!;
+    service.setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer');
+    service.setCharacteristic(this.platform.Characteristic.Model, 'Default-Model');
+    service.setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
 
     this.service = this.accessory.getService(this.platform.Service.Thermostat) ||
       this.accessory.addService(this.platform.Service.Thermostat);
@@ -25,7 +25,8 @@ export class TikoAccessory {
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
-      .onGet(this.getTargetTemperature.bind(this))
+      .onGet(this.getTargetTemperature.bind(this)),
+    this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
       .onSet(this.setTargetTemperature.bind(this));
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentTemperature)
@@ -96,7 +97,7 @@ export class TikoAccessory {
     return value;
   }
 
-  private _getCurrentMode(modes: { boost: boolean; absence: boolean; frost: boolean; disableHeating: boolean }): string|null {
+  private _getCurrentMode(modes: { boost: boolean; absence: boolean; frost: boolean; disableHeating: boolean }): string | null {
     for (const mode in modes) {
       if (modes[mode] === true) {
         return mode;
