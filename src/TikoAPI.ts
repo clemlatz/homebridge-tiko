@@ -53,6 +53,7 @@ export default class TikoAPI {
     const roomResponse = await this.client.query({
       query: getRoomQuery,
       variables: {propertyId: this.propertyId, roomId: roomId},
+      fetchPolicy: 'no-cache',
     }) as TikoRoomResponse;
     return roomResponse.data.property.room;
   }
