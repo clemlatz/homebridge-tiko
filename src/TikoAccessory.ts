@@ -25,7 +25,7 @@ export class TikoAccessory {
     );
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
-      .onGet(this.getTargetTemperature.bind(this)),
+      .onGet(this.getTargetTemperature.bind(this));
     this.service.getCharacteristic(this.platform.Characteristic.TargetTemperature)
       .onSet(this.setTargetTemperature.bind(this));
 
@@ -57,7 +57,9 @@ export class TikoAccessory {
 
   async getCurrentHeatingCoolingState(): Promise<CharacteristicValue> {
     const targetHeatingCoolingState = await this.getTargetHeatingCoolingState();
-    return targetHeatingCoolingState < 3 ? targetHeatingCoolingState : 2;
+    return targetHeatingCoolingState === this.platform.Characteristic.TargetHeatingCoolingState.AUTO
+      ? this.platform.Characteristic.TargetHeatingCoolingState.HEAT
+      : targetHeatingCoolingState;
   }
 
   async getTargetHeatingCoolingState(): Promise<CharacteristicValue> {
