@@ -6,6 +6,7 @@ import {getPropertyQuery} from './queries/getPropertyQuery';
 import {TikoLoginResponse, TikoProperty, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {authenticationQuery} from './queries/authenticationQuery';
+import {setRoomModeQuery} from './queries/setRoomMode';
 
 describe('#authenticate', () => {
   test('authenticates user with credentials in config', async () => {
@@ -165,6 +166,46 @@ describe('#setTargetTemparature', () => {
     expect(clientMock.mutate).toHaveBeenCalledWith({
       mutation: setTemperatureQuery,
       variables: {propertyId: 123, roomId: 456, temperature: 21},
+    });
+  });
+});
+
+describe('#setMode', () => {
+  test('queries API to set "frost" mode for given room id', async () => {
+
+    // given
+    const configMock = {} as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+    tikoApi.setPropertyId(123);
+
+    // when
+    await tikoApi.setRoomMode(456, 'frost');
+
+    // then
+    expect(clientMock.mutate).toHaveBeenCalledWith({
+      mutation: setRoomModeQuery,
+      variables: {propertyId: 123, roomId: 456, mode: 'frost'},
+    });
+  });
+
+  test('queries API to set "false" if given mode is null', async () => {
+
+    // given
+    const configMock = {} as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+    tikoApi.setPropertyId(123);
+
+    // when
+    await tikoApi.setRoomMode(456, null);
+
+    // then
+    expect(clientMock.mutate).toHaveBeenCalledWith({
+      mutation: setRoomModeQuery,
+      variables: {propertyId: 123, roomId: 456, mode: false},
     });
   });
 });

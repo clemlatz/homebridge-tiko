@@ -5,6 +5,7 @@ import {getRoomQuery} from './queries/getRoomQuery';
 import {TikoLoginResponse, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
 import {ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
+import {setRoomModeQuery} from './queries/setRoomMode';
 
 export default class TikoAPI {
   private propertyId: number | null = null;
@@ -65,6 +66,17 @@ export default class TikoAPI {
         propertyId: this.propertyId,
         roomId: roomId,
         temperature: targetTemperature,
+      },
+    });
+  }
+
+  public async setRoomMode(roomId: number, mode: TikoMode) {
+    await this.client.mutate({
+      mutation: setRoomModeQuery,
+      variables: {
+        propertyId: this.propertyId,
+        roomId,
+        mode: mode !== null ? mode :false,
       },
     });
   }
