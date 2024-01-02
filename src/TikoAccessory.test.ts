@@ -30,6 +30,7 @@ describe('#constructor', () => {
       getService: jest.fn(() => service),
       context: {
         room: {
+          id: 1234,
           name: 'Bedroom',
         },
       },
@@ -40,9 +41,9 @@ describe('#constructor', () => {
 
     // then
     expect(accessory.getService).toHaveBeenCalledWith('AccessoryInformation');
-    expect(service.setCharacteristic).toHaveBeenCalledWith('Manufacturer', 'Default-Manufacturer');
-    expect(service.setCharacteristic).toHaveBeenCalledWith('Model', 'Default-Model');
-    expect(service.setCharacteristic).toHaveBeenCalledWith('SerialNumber', 'Default-Serial');
+    expect(service.setCharacteristic).toHaveBeenCalledWith('Manufacturer', 'Tiko');
+    expect(service.setCharacteristic).toHaveBeenCalledWith('Model', 'Tiko');
+    expect(service.setCharacteristic).toHaveBeenCalledWith('SerialNumber', 1234);
 
   });
 });

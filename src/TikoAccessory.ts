@@ -11,9 +11,9 @@ export class TikoAccessory {
   ) {
 
     const service = this.accessory.getService(this.platform.Service.AccessoryInformation)!;
-    service.setCharacteristic(this.platform.Characteristic.Manufacturer, 'Default-Manufacturer');
-    service.setCharacteristic(this.platform.Characteristic.Model, 'Default-Model');
-    service.setCharacteristic(this.platform.Characteristic.SerialNumber, 'Default-Serial');
+    service.setCharacteristic(this.platform.Characteristic.Manufacturer, 'Tiko');
+    service.setCharacteristic(this.platform.Characteristic.Model, 'Tiko');
+    service.setCharacteristic(this.platform.Characteristic.SerialNumber, accessory.context.room.id.toString());
 
     this.service = this.accessory.getService(this.platform.Service.Thermostat) ||
       this.accessory.addService(this.platform.Service.Thermostat);
