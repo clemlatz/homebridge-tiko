@@ -146,7 +146,7 @@ describe('#getCurrentTargetCoolingState', () => {
     expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.OFF);
   });
 
-  test('returns AUTO state for "absence" mode', async () => {
+  test('returns COOL state for "absence" mode', async () => {
     // given
     const platform = _buildTikoPlatformMock({
       mode: {absence: true},
@@ -158,10 +158,10 @@ describe('#getCurrentTargetCoolingState', () => {
     const state = await tikoAccessory.getTargetHeatingCoolingState();
 
     // then
-    expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.AUTO);
+    expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.COOL);
   });
 
-  test('returns AUTO state for "boost" mode', async () => {
+  test('returns HEAT state for "boost" mode', async () => {
     // given
     const platform = _buildTikoPlatformMock({
       mode: {boost: true},
@@ -173,7 +173,7 @@ describe('#getCurrentTargetCoolingState', () => {
     const state = await tikoAccessory.getTargetHeatingCoolingState();
 
     // then
-    expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.AUTO);
+    expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.HEAT);
   });
 
   test('returns AUTO state if no mode is returned', async () => {
@@ -208,7 +208,7 @@ describe('#setTargetHeatingCoolingState', () => {
     expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'frost');
   });
 
-  test('sets mode to null for any other state ', async () => {
+  test('sets mode "absence" for COLD state ', async () => {
     // given
     const platform = _buildTikoPlatformMock({ roomId: 1234 });
     const {platformAccessory} = _buildMocks();
@@ -216,7 +216,37 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // when
     await tikoAccessory.setTargetHeatingCoolingState(
-      platform.Characteristic.TargetHeatingCoolingState.AUTO.toString(),
+      platform.Characteristic.TargetHeatingCoolingState.COOL,
+    );
+
+    // then
+    expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'absence');
+  });
+
+  test('sets mode "boost" for HEAT state ', async () => {
+    // given
+    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+
+    // when
+    await tikoAccessory.setTargetHeatingCoolingState(
+      platform.Characteristic.TargetHeatingCoolingState.HEAT,
+    );
+
+    // then
+    expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'boost');
+  });
+
+  test('sets mode to null for AUTO state', async () => {
+    // given
+    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+
+    // when
+    await tikoAccessory.setTargetHeatingCoolingState(
+      platform.Characteristic.TargetHeatingCoolingState.AUTO,
     );
 
     // then
@@ -235,6 +265,7 @@ function _buildTikoPlatformMock(response: object = {}) {
       SerialNumber: 'SerialNumber',
       TargetHeatingCoolingState: {
         OFF: 0,
+        COOL: 1,
         HEAT: 2,
         AUTO: 3,
       },

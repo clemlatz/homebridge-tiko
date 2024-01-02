@@ -12,6 +12,15 @@ Available features:
 TODO:
 - Allow to set "absence" mode for all heaters
 
+## Usage
+
+| Apple Home instruction | Tiko mode                |
+|------------------------|--------------------------|
+| Off (Éteint)           | Frost (Hors-gel)         |
+| Cool (Refroidir)       | Absence                  |
+| Heat (Chauffer)        | Boost                    |
+| Auto (Autom.)          | Schedule (Programmation) |
+
 ## Installation instructions
 
 1. [Install and configure Homebridge](https://github.com/homebridge/homebridge/wiki)

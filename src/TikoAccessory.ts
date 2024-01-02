@@ -75,23 +75,40 @@ export class TikoAccessory {
     const currentMode = this._getCurrentMode(modes);
     this.platform.log.debug(`GET mode for room "${name}": ${currentMode}`);
 
-    if (currentMode === 'boost' || currentMode === 'absence') {
-      return this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
+    let state: CharacteristicValue;
+    switch (currentMode) {
+      case 'disableHeating':
+      case 'frost':
+        state = this.platform.Characteristic.TargetHeatingCoolingState.OFF;
+        break;
+      case 'absence':
+        state = this.platform.Characteristic.TargetHeatingCoolingState.COOL;
+        break;
+      case 'boost':
+        state = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
+        break;
+      default:
+        state = this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
     }
-
-    if (currentMode === 'frost' || currentMode === 'disableHeating') {
-      return this.platform.Characteristic.TargetHeatingCoolingState.OFF;
-    }
-
-    return this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
+    return state;
   }
 
   async setTargetHeatingCoolingState(value: CharacteristicValue) {
     const {id, name} = this.accessory.context.room;
 
-    let mode: TikoMode = null;
-    if (value === this.platform.Characteristic.TargetHeatingCoolingState.OFF) {
-      mode = 'frost';
+    let mode: TikoMode;
+    switch (value) {
+      case this.platform.Characteristic.TargetHeatingCoolingState.OFF:
+        mode = 'frost';
+        break;
+      case this.platform.Characteristic.TargetHeatingCoolingState.COOL:
+        mode = 'absence';
+        break;
+      case this.platform.Characteristic.TargetHeatingCoolingState.HEAT:
+        mode = 'boost';
+        break;
+      default:
+        mode = null;
     }
 
     this.platform.log.debug(`SET mode for room "${name}" to ${value} as ${mode}`);
