@@ -192,6 +192,38 @@ describe('#getCurrentTargetCoolingState', () => {
   });
 });
 
+describe('#setTargetHeatingCoolingState', () => {
+  test('sets mode "frost" for OFF state ', async () => {
+    // given
+    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+
+    // when
+    await tikoAccessory.setTargetHeatingCoolingState(
+      platform.Characteristic.TargetHeatingCoolingState.OFF,
+    );
+
+    // then
+    expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'frost');
+  });
+
+  test('sets mode to null for any other state ', async () => {
+    // given
+    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+
+    // when
+    await tikoAccessory.setTargetHeatingCoolingState(
+      platform.Characteristic.TargetHeatingCoolingState.AUTO.toString(),
+    );
+
+    // then
+    expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, null);
+  });
+});
+
 function _buildTikoPlatformMock(response: object = {}) {
   return {
     Service: {
@@ -213,6 +245,7 @@ function _buildTikoPlatformMock(response: object = {}) {
     tiko: {
       getRoom: () => response,
       setTargetTemperature: jest.fn(),
+      setRoomMode: jest.fn(),
     },
     log: {
       debug: jest.fn(),

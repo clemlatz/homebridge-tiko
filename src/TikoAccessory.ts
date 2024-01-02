@@ -1,6 +1,7 @@
 import {CharacteristicValue, PlatformAccessory, Service} from 'homebridge';
 
 import {TikoPlatform} from './TikoPlatform';
+import {TikoMode} from './types';
 
 export class TikoAccessory {
   private service: Service;
@@ -34,6 +35,8 @@ export class TikoAccessory {
 
     this.service.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
       .onGet(this.getTargetHeatingCoolingState.bind(this));
+    this.service.getCharacteristic(this.platform.Characteristic.TargetHeatingCoolingState)
+      .onSet(this.setTargetHeatingCoolingState.bind(this));
 
     this.service.getCharacteristic(this.platform.Characteristic.CurrentHeatingCoolingState)
       .onGet(this.getCurrentHeatingCoolingState.bind(this));
@@ -83,6 +86,19 @@ export class TikoAccessory {
     return this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
   }
 
+  async setTargetHeatingCoolingState(value: CharacteristicValue) {
+    const {id, name} = this.accessory.context.room;
+
+    let mode: TikoMode = null;
+    if (value === this.platform.Characteristic.TargetHeatingCoolingState.OFF) {
+      mode = 'frost';
+    }
+
+    this.platform.log.debug(`SET mode for room "${name}" to ${value} as ${mode}`);
+
+    await this.platform.tiko.setRoomMode(id, mode);
+  }
+
   private async _getValueFor(key: string) {
     const {id, name} = this.accessory.context.room;
 
@@ -99,10 +115,10 @@ export class TikoAccessory {
     return value;
   }
 
-  private _getCurrentMode(modes: { boost: boolean; absence: boolean; frost: boolean; disableHeating: boolean }): string | null {
+  private _getCurrentMode(modes: { boost: boolean; absence: boolean; frost: boolean; disableHeating: boolean }): TikoMode {
     for (const mode in modes) {
       if (modes[mode] === true) {
-        return mode;
+        return mode as TikoMode;
       }
     }
 

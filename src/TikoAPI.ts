@@ -2,7 +2,7 @@ import {PlatformConfig} from 'homebridge';
 import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
-import {TikoLoginResponse, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
+import {TikoLoginResponse, TikoMode, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
 import {ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';

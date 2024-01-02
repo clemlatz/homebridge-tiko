@@ -47,3 +47,5 @@ export type TikoRoomResponse = {
     };
   };
 };
+
+export type TikoMode = 'boost' | 'absence' | 'frost' | 'disableHeating' | null;
