@@ -28,7 +28,23 @@ describe('#build', () => {
 });
 
 describe('#constructor', () => {
-  test('sets links to the endpoint specified in config', () => {
+  test('sets link to the default endpoint if none specified in config', () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+
+    // when
+    new TikoAPI(configMock, clientMock);
+
+    // then
+    expect(createHttpLink).toHaveBeenCalledWith({'uri': 'https://particuliers-tiko.fr/api/v3/graphql/'});
+  });
+
+  test('sets link to the endpoint specified in config', () => {
     // given
     const configMock = {
       platform: 'Tiko',
