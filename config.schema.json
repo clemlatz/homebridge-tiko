@@ -25,7 +25,8 @@
         "title": "Endpoint Tiko (facultatif)",
         "type": "string",
         "required": false,
-        "default": "https://particuliers-tiko.fr"
+        "placeholder": "https://particuliers-tiko.fr/api/v3/graphql/",
+        "format": "uri"
       },
       "propertyId": {
         "title": "Identifiant de propriété (facultatif)",

@@ -132,7 +132,7 @@ export default class TikoAPI {
   }
 
   private static _createApolloLink(config: PlatformConfig, userToken: string | null = null): ApolloLink {
-    const requestUrl = `${config.endpoint ?? 'https://particuliers-tiko.fr'}/api/v3/graphql/`;
+    const requestUrl = config.endpoint ?? 'https://particuliers-tiko.fr/api/v3/graphql/';
     const httpLink = createHttpLink({uri: requestUrl});
 
     if (!userToken) {

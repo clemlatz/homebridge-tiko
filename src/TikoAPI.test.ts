@@ -50,7 +50,7 @@ describe('#constructor', () => {
       platform: 'Tiko',
       login: 'user@example.net',
       password: 'p4ssw0rd',
-      endpoint: 'https://example.net',
+      endpoint: 'https://example.net/api/v3/graphql/',
     } as PlatformConfig;
     const clientMock = _mockClientAndRespond(null);
 

@@ -27,8 +27,8 @@ Features:
 
 ### Optional `endpoint` option
 
-Endpoint defaults to https://particuliers-tiko.fr but can be changed to
-another endpoint (eg. https://portal-engie.tiko.ch).
+Endpoint defaults to `https://particuliers-tiko.fr/api/v3/graphql/` but can be changed to
+another url (eg. https://portal-engie.tiko.ch/api/v3/graphql/).
 
 ### Optional `propertyId` option
 
