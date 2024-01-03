@@ -17,9 +17,24 @@ export class TikoPlatform implements DynamicPlatformPlugin {
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.log.debug('Finished initializing platform:', this.config.name);
-
     this.tiko = TikoAPI.build(config);
+
+    if (!this.config.name) {
+      this.log.error('Missing required parameter "name" in config');
+      return;
+    }
+
+    if (!this.config.login) {
+      this.log.error('Missing required parameter "login" in config');
+      return;
+    }
+
+    if (!this.config.password) {
+      this.log.error('Missing required parameter "password" in config');
+      return;
+    }
+
+    this.log.debug('Finished initializing platform:', this.config.name);
 
     this.api.on('didFinishLaunching', async () => {
       log.debug('Executed didFinishLaunching callback');

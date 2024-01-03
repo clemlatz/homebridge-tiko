@@ -5,6 +5,44 @@ import {TikoApiError} from './TikoApiError';
 
 jest.mock('./TikoAPI');
 
+describe('#constructor', () => {
+  test('logs error and quits if name is missing in config', () => {
+    const {logMock, configMock, homebridgeApiMock, tikoApiMock} = _buildMocks();
+    configMock.name = undefined;
+
+    // when
+    new TikoPlatform(logMock, configMock, homebridgeApiMock);
+
+    // then
+    expect(logMock.error).toHaveBeenCalledWith('Missing required parameter "name" in config');
+    expect(tikoApiMock.authenticate).not.toHaveBeenCalled();
+  });
+
+  test('logs error and quits if username is missing in config', () => {
+    const {logMock, configMock, homebridgeApiMock, tikoApiMock} = _buildMocks();
+    configMock.login = undefined;
+
+    // when
+    new TikoPlatform(logMock, configMock, homebridgeApiMock);
+
+    // then
+    expect(logMock.error).toHaveBeenCalledWith('Missing required parameter "login" in config');
+    expect(tikoApiMock.authenticate).not.toHaveBeenCalled();
+  });
+
+  test('logs error and quits if password is missing in config', () => {
+    const {logMock, configMock, homebridgeApiMock, tikoApiMock} = _buildMocks();
+    configMock.password = undefined;
+
+    // when
+    new TikoPlatform(logMock, configMock, homebridgeApiMock);
+
+    // then
+    expect(logMock.error).toHaveBeenCalledWith('Missing required parameter "password" in config');
+    expect(tikoApiMock.authenticate).not.toHaveBeenCalled();
+  });
+});
+
 describe('#discoverDevices', () => {
   test('authenticates and query all rooms', async () => {
     // given
@@ -60,5 +98,28 @@ describe('#discoverDevices', () => {
     // then
     expect(logMock.error).toHaveBeenCalledWith('An error occured while trying to login: Oops!');
     expect(tikoApiMock.getAllRooms).not.toHaveBeenCalled();
-  })
+  });
 });
+
+function _buildMocks() {
+  const logMock = {
+    debug: jest.fn(),
+    error: jest.fn(),
+  } as unknown as Logger;
+  const configMock = {
+    name: 'My Tiko',
+    login: 'user@example.net',
+    password: 'password',
+  } as unknown as PlatformConfig;
+  const homebridgeApiMock = {
+    hap: {},
+    on: jest.fn(),
+  } as unknown as API;
+
+  const tikoApiMock = {
+    authenticate: jest.fn(),
+    getAllRooms: jest.fn(() => []),
+  } as unknown as TikoAPI;
+  TikoAPI.build = jest.fn(() => tikoApiMock);
+  return {logMock, configMock, homebridgeApiMock, tikoApiMock};
+}
