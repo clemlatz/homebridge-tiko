@@ -1,16 +1,13 @@
 # homebridge-tiko
 
 The **homebridge-tiko** plugin allows you to control Tiko-connected heaters
-in the Apple Home app, by connecting the [Tiko](https://www.tiko.fr) 
+using Siri or the Apple Home app, by connecting the [Tiko](https://www.tiko.fr) 
 platform to HomeKit through Homebridge.
 
-Available features:
+Features:
 - Displays current and target temperature for each room
 - Allows to set target temperature for each room
 - Allow to put a heater in "frost" mode by turning it off
-
-TODO:
-- Allow to set "absence" mode for all heaters
 
 ## Usage
 
