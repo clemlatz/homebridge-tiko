@@ -3,7 +3,7 @@
   "displayName": "Tiko",
   "name": "homebridge-tiko",
   "version": "0.7.0",
-  "description": "Control Tiko-connected heaters in the Apple Home app, by connecting the Tiko platform to HomeKit through Homebridge.",
+  "description": "Homebridge plugin to integrate Tiko-controlled heaters into HomeKit.",
   "author": {
     "name": "Clément Latzarus",
     "email": "hello@clemlatz.dev",
@@ -34,9 +34,12 @@
     "test": "jest"
   },
   "keywords": [
+    "homebridge",
     "homebridge-plugin",
     "homebridge-tiko",
-    "tiko"
+    "tiko",
+    "homekit",
+    "siri"
   ],
   "dependencies": {
     "@apollo/client": "^3.8.8",
