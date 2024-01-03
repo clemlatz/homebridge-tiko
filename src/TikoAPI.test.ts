@@ -8,6 +8,22 @@ import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {authenticationQuery} from './queries/authenticationQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
 
+describe('#build', () => {
+  test('builds a TikoAPI service with default endpoint', () => {
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+    } as PlatformConfig;
+
+    // when
+    const tikoApi = TikoAPI.build(configMock);
+
+    // then
+    expect(tikoApi).toBeInstanceOf(TikoAPI);
+  });
+});
+
 describe('#authenticate', () => {
   test('authenticates user with credentials in config', async () => {
     // given
