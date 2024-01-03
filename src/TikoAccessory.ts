@@ -2,6 +2,7 @@ import {CharacteristicValue, PlatformAccessory, Service} from 'homebridge';
 
 import {TikoPlatform} from './TikoPlatform';
 import {TikoMode} from './types';
+import {TikoApiError} from './TikoApiError';
 
 export class TikoAccessory {
   private service: Service;
@@ -51,7 +52,11 @@ export class TikoAccessory {
     const {id, name} = this.accessory.context.room;
     const targetTemperature = Number(value);
     this.platform.log.debug(`SET target temperature for room "${name}" to ${value}`);
-    await this.platform.tiko.setTargetTemperature(id, targetTemperature);
+    try {
+      await this.platform.tiko.setTargetTemperature(id, targetTemperature);
+    } catch (error) {
+      this._handleErrorWhileTryingTo('set target temperature', error as Error);
+    }
   }
 
   async getCurrentTemperature(): Promise<CharacteristicValue> {
@@ -68,29 +73,34 @@ export class TikoAccessory {
   async getTargetHeatingCoolingState(): Promise<CharacteristicValue> {
     const {id, name} = this.accessory.context.room;
 
-    const room = await this.platform.tiko.getRoom(id);
+    try {
+      const room = await this.platform.tiko.getRoom(id);
 
-    const modes = room.mode;
+      const modes = room.mode;
 
-    const currentMode = this._getCurrentMode(modes);
-    this.platform.log.debug(`GET mode for room "${name}": ${currentMode}`);
+      const currentMode = this._getCurrentMode(modes);
+      this.platform.log.debug(`GET mode for room "${name}": ${currentMode}`);
 
-    let state: CharacteristicValue;
-    switch (currentMode) {
-      case 'disableHeating':
-      case 'frost':
-        state = this.platform.Characteristic.TargetHeatingCoolingState.OFF;
-        break;
-      case 'absence':
-        state = this.platform.Characteristic.TargetHeatingCoolingState.COOL;
-        break;
-      case 'boost':
-        state = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
-        break;
-      default:
-        state = this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
+      let state: CharacteristicValue;
+      switch (currentMode) {
+        case 'disableHeating':
+        case 'frost':
+          state = this.platform.Characteristic.TargetHeatingCoolingState.OFF;
+          break;
+        case 'absence':
+          state = this.platform.Characteristic.TargetHeatingCoolingState.COOL;
+          break;
+        case 'boost':
+          state = this.platform.Characteristic.TargetHeatingCoolingState.HEAT;
+          break;
+        default:
+          state = this.platform.Characteristic.TargetHeatingCoolingState.AUTO;
+      }
+      return state;
+    } catch (error) {
+      this._handleErrorWhileTryingTo(`get mode for room "${name}"`, error as Error);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
     }
-    return state;
   }
 
   async setTargetHeatingCoolingState(value: CharacteristicValue) {
@@ -113,23 +123,26 @@ export class TikoAccessory {
 
     this.platform.log.debug(`SET mode for room "${name}" to ${value} as ${mode}`);
 
-    await this.platform.tiko.setRoomMode(id, mode);
+    try {
+      await this.platform.tiko.setRoomMode(id, mode);
+    } catch (error) {
+      this._handleErrorWhileTryingTo(`set mode "${mode}" for room "${name}"`, error as Error);
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
   }
 
   private async _getValueFor(key: string) {
     const {id, name} = this.accessory.context.room;
 
-    const room = await this.platform.tiko.getRoom(id);
+    try {
+      const room = await this.platform.tiko.getRoom(id);
+      const value = room[key];
+      this.platform.log.debug(`GET "${key}" for room "${name}": ${value}`);
 
-    const value = room[key];
-
-    this.platform.log.debug(`GET "${key}" for room "${name}": ${value}`);
-
-    if (value === null) {
-      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+      return value;
+    } catch (error) {
+      this._handleErrorWhileTryingTo(`get ${key}`, error as Error);
     }
-
-    return value;
   }
 
   private _getCurrentMode(modes: { boost: boolean; absence: boolean; frost: boolean; disableHeating: boolean }): TikoMode {
@@ -140,5 +153,16 @@ export class TikoAccessory {
     }
 
     return null;
+  }
+
+  private _handleErrorWhileTryingTo(tryingTo: string, error: Error) {
+    if (error instanceof TikoApiError) {
+      this.platform.log.error(
+        `An error occurred while trying to ${tryingTo}: ${error.message}`,
+      );
+      throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+    }
+
+    throw error;
   }
 }

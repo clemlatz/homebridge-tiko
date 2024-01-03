@@ -1,6 +1,17 @@
 import {TikoAccessory} from './TikoAccessory';
 import {Characteristic, PlatformAccessory, Service} from 'homebridge';
 import {TikoPlatform} from './TikoPlatform';
+import {TikoApiError} from './TikoApiError';
+import {TikoRoom} from './types';
+
+const defaultRoom: TikoRoom = {
+  id: 123,
+  name: 'Bedroom',
+  targetTemperatureDegrees: 19,
+  currentTemperatureDegrees: 17,
+  mode: {boost: false, absence: false, frost: false, disableHeating: false},
+  status: {heatingOperating: true},
+};
 
 describe('#constructor', () => {
   test('builds a new accessory', async () => {
@@ -49,12 +60,29 @@ describe('#getTargetTemperature', () => {
     // then
     expect(temperature).toBe(10);
   });
+
+  test('catches and logs error', async () => {
+    // given
+    const platform = _buildTikoPlatformMock(defaultRoom);
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+    (platform.tiko.getRoom as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
+
+    // when
+    const promise = tikoAccessory.getTargetTemperature();
+
+    // then
+    await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
+      platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    ));
+    expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to get targetTemperatureDegrees: Oops!');
+  });
 });
 
 describe('#setTargetTemperature', () => {
   test('sets target temperature', async () => {
     // given
-    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const platform = _buildTikoPlatformMock(defaultRoom);
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
@@ -63,6 +91,23 @@ describe('#setTargetTemperature', () => {
 
     // then
     expect(platform.tiko.setTargetTemperature).toHaveBeenCalledWith(1234, 19);
+  });
+
+  test('catches and logs error', async () => {
+    // given
+    const platform = _buildTikoPlatformMock(defaultRoom);
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+    (platform.tiko.setTargetTemperature as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
+
+    // when
+    const promise = tikoAccessory.setTargetTemperature('19');
+
+    // then
+    await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
+      platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    ));
+    expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to set target temperature: Oops!');
   });
 });
 
@@ -80,6 +125,23 @@ describe('#getCurrentTemperature', () => {
 
     // then
     expect(temperature).toBe(17);
+  });
+
+  test('catches and logs error', async () => {
+    // given
+    const platform = _buildTikoPlatformMock(defaultRoom);
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+    (platform.tiko.getRoom as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
+
+    // when
+    const promise = tikoAccessory.getCurrentTemperature();
+
+    // then
+    await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
+      platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    ));
+    expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to get currentTemperatureDegrees: Oops!');
   });
 });
 
@@ -112,6 +174,23 @@ describe('#getCurrentHeatingCoolingState', () => {
 
     // then
     expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.OFF);
+  });
+
+  test('catches and logs error', async () => {
+    // given
+    const platform = _buildTikoPlatformMock(defaultRoom);
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+    (platform.tiko.getRoom as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
+
+    // when
+    const promise = tikoAccessory.getCurrentHeatingCoolingState();
+
+    // then
+    await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
+      platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    ));
+    expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to get mode for room "Bedroom": Oops!');
   });
 });
 
@@ -190,12 +269,29 @@ describe('#getCurrentTargetCoolingState', () => {
     // then
     expect(state).toBe(platform.Characteristic.TargetHeatingCoolingState.AUTO);
   });
+
+  test('catches and logs error', async () => {
+    // given
+    const platform = _buildTikoPlatformMock(defaultRoom);
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+    (platform.tiko.getRoom as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
+
+    // when
+    const promise = tikoAccessory.getTargetHeatingCoolingState();
+
+    // then
+    await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
+      platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
+    ));
+    expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to get mode for room "Bedroom": Oops!');
+  });
 });
 
 describe('#setTargetHeatingCoolingState', () => {
   test('sets mode "frost" for OFF state ', async () => {
     // given
-    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const platform = _buildTikoPlatformMock({roomId: 1234});
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
@@ -210,7 +306,7 @@ describe('#setTargetHeatingCoolingState', () => {
 
   test('sets mode "absence" for COLD state ', async () => {
     // given
-    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const platform = _buildTikoPlatformMock({roomId: 1234});
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
@@ -225,7 +321,7 @@ describe('#setTargetHeatingCoolingState', () => {
 
   test('sets mode "boost" for HEAT state ', async () => {
     // given
-    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const platform = _buildTikoPlatformMock({roomId: 1234});
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
@@ -240,7 +336,7 @@ describe('#setTargetHeatingCoolingState', () => {
 
   test('sets mode to null for AUTO state', async () => {
     // given
-    const platform = _buildTikoPlatformMock({ roomId: 1234 });
+    const platform = _buildTikoPlatformMock({roomId: 1234});
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
@@ -251,6 +347,25 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // then
     expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, null);
+  });
+
+  test('catches and logs error', async () => {
+    // given
+    const platform = _buildTikoPlatformMock({});
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+    (platform.tiko.setRoomMode as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
+
+    // when
+    const promise = tikoAccessory.setTargetHeatingCoolingState(
+      platform.Characteristic.TargetHeatingCoolingState.HEAT,
+    );
+
+    // then
+    await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
+    const platform = _buildTikoPlatformMock(defaultRoom);
+    ));
+    expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to set mode "boost" for room "Bedroom": Oops!');
   });
 });
 
@@ -274,17 +389,26 @@ function _buildTikoPlatformMock(response: object = {}) {
       },
     },
     tiko: {
-      getRoom: () => response,
+      getRoom: jest.fn(() => response),
       setTargetTemperature: jest.fn(),
       setRoomMode: jest.fn(),
     },
     log: {
       debug: jest.fn(),
+      error: jest.fn(),
+    },
+    api: {
+      hap: {
+        HapStatusError: Error,
+        HAPStatus: {
+      getRoom: jest.fn(() => room),
+        },
+      },
     },
   } as unknown as TikoPlatform;
 }
 
-function _buildMocks({ roomId } = { roomId: 1234 }) {
+function _buildMocks({roomId} = {roomId: 1234}) {
   const characteristic = {
     onSet: jest.fn(),
     onGet: jest.fn(),
