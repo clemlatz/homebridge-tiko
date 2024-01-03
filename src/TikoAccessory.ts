@@ -51,6 +51,16 @@ export class TikoAccessory {
   async setTargetTemperature(value: CharacteristicValue): Promise<void> {
     const {id, name} = this.accessory.context.room;
     const targetTemperature = Number(value);
+
+    const room = await this.platform.tiko.getRoom(id);
+    const currentMode = this._getCurrentMode(room.mode);
+    if (currentMode) {
+      this.platform.log.debug(
+        `Ignoring SET target temperature to "${targetTemperature}" for room "${name}" because mode "${currentMode}" is set`,
+      );
+      return;
+    }
+
     this.platform.log.debug(`SET target temperature for room "${name}" to ${value}`);
     try {
       await this.platform.tiko.setTargetTemperature(id, targetTemperature);

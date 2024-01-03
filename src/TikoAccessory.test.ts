@@ -95,6 +95,26 @@ describe('#setTargetTemperature', () => {
     expect(platform.tiko.setTargetTemperature).toHaveBeenCalledWith(1234, 19);
   });
 
+  test('ignores new temperature if a mode is set', async () => {
+    // given
+    const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
+      targetTemperatureDegrees: 17,
+      mode: {
+        ...defaultRoom.mode,
+        absence: true,
+      },
+    });
+    const {platformAccessory} = _buildMocks();
+    const tikoAccessory = new TikoAccessory(platform, platformAccessory);
+
+    // when
+    await tikoAccessory.setTargetTemperature('19');
+
+    // then
+    expect(platform.tiko.setTargetTemperature).not.toHaveBeenCalled();
+  });
+
   test('catches and logs error', async () => {
     // given
     const platform = _buildTikoPlatformMock(defaultRoom);
