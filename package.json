@@ -9,6 +9,10 @@
     "email": "hello@clemlatz.dev",
     "url": "https://clemlatz.dev"
   },
+  "funding": {
+    "type": "individual",
+    "url": "https://fund.clemlatz.dev"
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
