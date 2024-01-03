@@ -1,6 +1,6 @@
 import TikoAPI from './TikoAPI';
 import {PlatformConfig} from 'homebridge';
-import {ApolloClient, ApolloError, NormalizedCacheObject} from '@apollo/client/core';
+import {ApolloClient, ApolloError, createHttpLink, NormalizedCacheObject} from '@apollo/client/core';
 import {getRoomQuery} from './queries/getRoomQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {TikoLoginResponse, TikoProperty, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
@@ -9,8 +9,10 @@ import {authenticationQuery} from './queries/authenticationQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
 import {TikoApiError} from './TikoApiError';
 
+jest.mock('@apollo/client/core');
+
 describe('#build', () => {
-  test('builds a TikoAPI service with default endpoint', () => {
+  test('builds a TikoAPI service', () => {
     const configMock = {
       platform: 'Tiko',
       login: 'user@example.net',
@@ -25,7 +27,27 @@ describe('#build', () => {
   });
 });
 
+describe('#constructor', () => {
+  test('sets links to the endpoint specified in config', () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      endpoint: 'https://example.net',
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+
+    // when
+    new TikoAPI(configMock, clientMock);
+
+    // then
+    expect(createHttpLink).toHaveBeenCalledWith({'uri': 'https://example.net/api/v3/graphql/'});
+  });
+});
+
 describe('#authenticate', () => {
+
   test('authenticates user with credentials in config', async () => {
     // given
     const configMock = {
@@ -104,7 +126,8 @@ describe('#authenticate', () => {
       propertyId: 789,
     } as PlatformConfig;
     const clientMock = _mockClientAndRespond(null);
-    const error = new ApolloError({ errorMessage: 'An error occurred' });
+    const error = new ApolloError({errorMessage: 'An error occurred'});
+    error.message = 'An error occurred';
     clientMock.mutate.mockRejectedValue(error);
 
     const tikoApi = new TikoAPI(configMock, clientMock);

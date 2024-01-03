@@ -15,6 +15,7 @@ export default class TikoAPI {
     private config: PlatformConfig,
     private client: ApolloClient<NormalizedCacheObject>,
   ) {
+    client.setLink(TikoAPI._createApolloLink(config));
   }
 
   public async authenticate() {
@@ -91,7 +92,6 @@ export default class TikoAPI {
 
   static build(config: PlatformConfig): TikoAPI {
     const client = new ApolloClient({
-      link: TikoAPI._createApolloLink(config),
       cache: new InMemoryCache(),
     });
 
