@@ -39,12 +39,13 @@ export default class TikoAPI {
 
       const defaultPropertyId = data.logIn.user.properties[0].id;
       this.setPropertyId(this.config.propertyId || defaultPropertyId);
-    } catch(error) {
+    } catch (error) {
       if (error instanceof ApolloError) {
         throw new TikoApiError(error.message);
       }
-    }
 
+      throw error;
+    }
   }
 
   public setPropertyId(value: number | null) {
@@ -52,42 +53,74 @@ export default class TikoAPI {
   }
 
   public async getAllRooms(): Promise<TikoRoom[]> {
-    const propertyResponse = await this.client.query({
-      query: getPropertyQuery,
-      variables: {id: this.propertyId},
-    }) as TikoPropertyResponse;
-    return propertyResponse.data.property.rooms;
+    try {
+      const propertyResponse = await this.client.query({
+        query: getPropertyQuery,
+        variables: {id: this.propertyId},
+      }) as TikoPropertyResponse;
+      return propertyResponse.data.property.rooms;
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        throw new TikoApiError(error.message);
+      }
+
+      throw error;
+    }
   }
 
   public async getRoom(roomId: number): Promise<TikoRoom> {
-    const roomResponse = await this.client.query({
-      query: getRoomQuery,
-      variables: {propertyId: this.propertyId, roomId: roomId},
-      fetchPolicy: 'no-cache',
-    }) as TikoRoomResponse;
-    return roomResponse.data.property.room;
+    try {
+      const roomResponse = await this.client.query({
+        query: getRoomQuery,
+        variables: {propertyId: this.propertyId, roomId: roomId},
+        fetchPolicy: 'no-cache',
+      }) as TikoRoomResponse;
+      return roomResponse.data.property.room;
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        throw new TikoApiError(error.message);
+      }
+
+      throw error;
+    }
   }
 
   public async setTargetTemperature(roomId: number, targetTemperature: number) {
-    await this.client.mutate({
-      mutation: setTemperatureQuery,
-      variables: {
-        propertyId: this.propertyId,
-        roomId: roomId,
-        temperature: targetTemperature,
-      },
-    });
+    try {
+      await this.client.mutate({
+        mutation: setTemperatureQuery,
+        variables: {
+          propertyId: this.propertyId,
+          roomId: roomId,
+          temperature: targetTemperature,
+        },
+      });
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        throw new TikoApiError(error.message);
+      }
+
+      throw error;
+    }
   }
 
   public async setRoomMode(roomId: number, mode: TikoMode) {
-    await this.client.mutate({
-      mutation: setRoomModeQuery,
-      variables: {
-        propertyId: this.propertyId,
-        roomId,
-        mode: mode !== null ? mode :false,
-      },
-    });
+    try {
+      await this.client.mutate({
+        mutation: setRoomModeQuery,
+        variables: {
+          propertyId: this.propertyId,
+          roomId,
+          mode: mode !== null ? mode : false,
+        },
+      });
+    } catch (error) {
+      if (error instanceof ApolloError) {
+        throw new TikoApiError(error.message);
+      }
+
+      throw error;
+    }
   }
 
   static build(config: PlatformConfig): TikoAPI {

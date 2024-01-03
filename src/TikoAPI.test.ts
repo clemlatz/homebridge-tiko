@@ -188,6 +188,28 @@ describe('#getAllRooms', () => {
     });
     expect(returnedRooms).toStrictEqual([roomFromApi]);
   });
+
+  test('catches ApolloError and throws TikoApiError', async () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      propertyId: 789,
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+    const error = new ApolloError({errorMessage: 'An error occurred'});
+    error.message = 'An error occurred';
+    clientMock.query.mockRejectedValue(error);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+
+    // when
+    const promise = tikoApi.getAllRooms();
+
+    // then
+    await expect(promise).rejects.toEqual(new TikoApiError('An error occurred'));
+  });
 });
 
 describe('#getRoom', () => {
@@ -224,6 +246,28 @@ describe('#getRoom', () => {
     });
     expect(returnedRoom).toBe(roomFromApi);
   });
+
+  test('catches ApolloError and throws TikoApiError', async () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      propertyId: 789,
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+    const error = new ApolloError({errorMessage: 'An error occurred'});
+    error.message = 'An error occurred';
+    clientMock.query.mockRejectedValue(error);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+
+    // when
+    const promise = tikoApi.getRoom(1);
+
+    // then
+    await expect(promise).rejects.toEqual(new TikoApiError('An error occurred'));
+  });
 });
 
 describe('#setTargetTemparature', () => {
@@ -245,9 +289,31 @@ describe('#setTargetTemparature', () => {
       variables: {propertyId: 123, roomId: 456, temperature: 21},
     });
   });
+
+  test('catches ApolloError and throws TikoApiError', async () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      propertyId: 789,
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+    const error = new ApolloError({errorMessage: 'An error occurred'});
+    error.message = 'An error occurred';
+    clientMock.mutate.mockRejectedValue(error);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+
+    // when
+    const promise = tikoApi.setTargetTemperature(1, 19);
+
+    // then
+    await expect(promise).rejects.toEqual(new TikoApiError('An error occurred'));
+  });
 });
 
-describe('#setMode', () => {
+describe('#setRoomMode', () => {
   test('queries API to set "frost" mode for given room id', async () => {
 
     // given
@@ -284,6 +350,28 @@ describe('#setMode', () => {
       mutation: setRoomModeQuery,
       variables: {propertyId: 123, roomId: 456, mode: false},
     });
+  });
+
+  test('catches ApolloError and throws TikoApiError', async () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      propertyId: 789,
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+    const error = new ApolloError({errorMessage: 'An error occurred'});
+    error.message = 'An error occurred';
+    clientMock.mutate.mockRejectedValue(error);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+
+    // when
+    const promise = tikoApi.setRoomMode(1, 'boost');
+
+    // then
+    await expect(promise).rejects.toEqual(new TikoApiError('An error occurred'));
   });
 });
 
