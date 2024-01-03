@@ -125,6 +125,8 @@ export class TikoAccessory {
 
     try {
       await this.platform.tiko.setRoomMode(id, mode);
+      const targetTemperature = await this.getTargetTemperature();
+      this.service.setCharacteristic(this.platform.Characteristic.TargetTemperature, targetTemperature);
     } catch (error) {
       this._handleErrorWhileTryingTo(`set mode "${mode}" for room "${name}"`, error as Error);
       throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);

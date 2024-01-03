@@ -16,7 +16,7 @@ const defaultRoom: TikoRoom = {
 describe('#constructor', () => {
   test('builds a new accessory', async () => {
     // given
-    const platform = _buildTikoPlatformMock();
+    const platform = _buildTikoPlatformMock(defaultRoom);
     const {service, platformAccessory} = _buildMocks();
 
     // when
@@ -34,6 +34,7 @@ describe('#getTargetTemperature', () => {
   test('queries and return target temperature', async () => {
     // given
     const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
       targetTemperatureDegrees: 19,
     });
     const {platformAccessory} = _buildMocks();
@@ -49,6 +50,7 @@ describe('#getTargetTemperature', () => {
   test('queries and return 10 if target temperature is below 10', async () => {
     // given
     const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
       targetTemperatureDegrees: 7,
     });
     const {platformAccessory} = _buildMocks();
@@ -115,6 +117,7 @@ describe('#getCurrentTemperature', () => {
   test('queries and return current temperature', async () => {
     // given
     const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
       currentTemperatureDegrees: 17,
     });
     const {platformAccessory} = _buildMocks();
@@ -149,6 +152,7 @@ describe('#getCurrentHeatingCoolingState', () => {
   test('queries and return HEAT for AUTO', async () => {
     // given
     const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
       mode: {boost: false, absence: false, frost: false, disableHeating: false},
     });
     const {platformAccessory} = _buildMocks();
@@ -164,6 +168,7 @@ describe('#getCurrentHeatingCoolingState', () => {
   test('queries and return current heater state', async () => {
     // given
     const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
       mode: {boost: false, absence: false, frost: true, disableHeating: false},
     });
     const {platformAccessory} = _buildMocks();
@@ -198,7 +203,11 @@ describe('#getCurrentTargetCoolingState', () => {
   test('returns OFF state for "disableHeating" mode', async () => {
     // given
     const platform = _buildTikoPlatformMock({
-      mode: {disableHeating: true},
+      ...defaultRoom,
+      mode: {
+        ...defaultRoom.mode,
+        disableHeating: true,
+      },
     });
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
@@ -213,7 +222,11 @@ describe('#getCurrentTargetCoolingState', () => {
   test('returns OFF state for "frost" mode', async () => {
     // given
     const platform = _buildTikoPlatformMock({
-      mode: {frost: true},
+      ...defaultRoom,
+      mode: {
+        ...defaultRoom.mode,
+        frost: true,
+      },
     });
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
@@ -228,7 +241,11 @@ describe('#getCurrentTargetCoolingState', () => {
   test('returns COOL state for "absence" mode', async () => {
     // given
     const platform = _buildTikoPlatformMock({
-      mode: {absence: true},
+      ...defaultRoom,
+      mode: {
+        ...defaultRoom.mode,
+        absence: true,
+      },
     });
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
@@ -243,7 +260,11 @@ describe('#getCurrentTargetCoolingState', () => {
   test('returns HEAT state for "boost" mode', async () => {
     // given
     const platform = _buildTikoPlatformMock({
-      mode: {boost: true},
+      ...defaultRoom,
+      mode: {
+        ...defaultRoom.mode,
+        boost: true,
+      },
     });
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
@@ -257,9 +278,7 @@ describe('#getCurrentTargetCoolingState', () => {
 
   test('returns AUTO state if no mode is returned', async () => {
     // given
-    const platform = _buildTikoPlatformMock({
-      mode: {boost: false, absence: false, frost: false, disableHeating: false},
-    });
+    const platform = _buildTikoPlatformMock(defaultRoom);
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
@@ -289,10 +308,13 @@ describe('#getCurrentTargetCoolingState', () => {
 });
 
 describe('#setTargetHeatingCoolingState', () => {
-  test('sets mode "frost" for OFF state ', async () => {
+  test('sets mode "frost" for OFF state and updates target temperature', async () => {
     // given
-    const platform = _buildTikoPlatformMock({roomId: 1234});
-    const {platformAccessory} = _buildMocks();
+    const platform = _buildTikoPlatformMock({
+      ... defaultRoom,
+      targetTemperatureDegrees: 10,
+    });
+    const {platformAccessory, service} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
     // when
@@ -302,12 +324,16 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // then
     expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'frost');
+    expect(service.setCharacteristic).toHaveBeenCalledWith(platform.Characteristic.TargetTemperature, 10);
   });
 
-  test('sets mode "absence" for COLD state ', async () => {
+  test('sets mode "absence" for COOL state and updates target temperature', async () => {
     // given
-    const platform = _buildTikoPlatformMock({roomId: 1234});
-    const {platformAccessory} = _buildMocks();
+    const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
+      targetTemperatureDegrees: 17,
+    });
+    const {platformAccessory, service} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
     // when
@@ -317,12 +343,16 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // then
     expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'absence');
+    expect(service.setCharacteristic).toHaveBeenCalledWith(platform.Characteristic.TargetTemperature, 17);
   });
 
-  test('sets mode "boost" for HEAT state ', async () => {
+  test('sets mode "boost" for HEAT state and updates target temperature', async () => {
     // given
-    const platform = _buildTikoPlatformMock({roomId: 1234});
-    const {platformAccessory} = _buildMocks();
+    const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
+      targetTemperatureDegrees: 25,
+    });
+    const {platformAccessory, service} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
     // when
@@ -332,12 +362,16 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // then
     expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, 'boost');
+    expect(service.setCharacteristic).toHaveBeenCalledWith(platform.Characteristic.TargetTemperature, 25);
   });
 
-  test('sets mode to null for AUTO state', async () => {
+  test('sets mode to null for AUTO state and updates target temperature', async () => {
     // given
-    const platform = _buildTikoPlatformMock({roomId: 1234});
-    const {platformAccessory} = _buildMocks();
+    const platform = _buildTikoPlatformMock({
+      ...defaultRoom,
+      targetTemperatureDegrees: 19,
+    });
+    const {platformAccessory, service} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
 
     // when
@@ -347,11 +381,12 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // then
     expect(platform.tiko.setRoomMode).toHaveBeenCalledWith(1234, null);
+    expect(service.setCharacteristic).toHaveBeenCalledWith(platform.Characteristic.TargetTemperature, 19);
   });
 
   test('catches and logs error', async () => {
     // given
-    const platform = _buildTikoPlatformMock({});
+    const platform = _buildTikoPlatformMock(defaultRoom);
     const {platformAccessory} = _buildMocks();
     const tikoAccessory = new TikoAccessory(platform, platformAccessory);
     (platform.tiko.setRoomMode as jest.Mock).mockRejectedValue(new TikoApiError('Oops!'));
@@ -363,13 +398,13 @@ describe('#setTargetHeatingCoolingState', () => {
 
     // then
     await expect(promise).rejects.toEqual(new platform.api.hap.HapStatusError(
-    const platform = _buildTikoPlatformMock(defaultRoom);
+      platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE,
     ));
     expect(platform.log.error).toHaveBeenCalledWith('An error occurred while trying to set mode "boost" for room "Bedroom": Oops!');
   });
 });
 
-function _buildTikoPlatformMock(response: object = {}) {
+function _buildTikoPlatformMock(room: TikoRoom) {
   return {
     Service: {
       AccessoryInformation: 'AccessoryInformation',
@@ -384,12 +419,13 @@ function _buildTikoPlatformMock(response: object = {}) {
         HEAT: 2,
         AUTO: 3,
       },
+      TargetTemperature: 'TargetTemperature',
       TemperatureDisplayUnits: {
         CELSIUS: 'CELSIUS',
       },
     },
     tiko: {
-      getRoom: jest.fn(() => response),
+      getRoom: jest.fn(() => room),
       setTargetTemperature: jest.fn(),
       setRoomMode: jest.fn(),
     },
@@ -401,7 +437,7 @@ function _buildTikoPlatformMock(response: object = {}) {
       hap: {
         HapStatusError: Error,
         HAPStatus: {
-      getRoom: jest.fn(() => room),
+          SERVICE_COMMUNICATION_FAILURE: 1,
         },
       },
     },
