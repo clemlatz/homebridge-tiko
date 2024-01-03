@@ -1,12 +1,13 @@
 import TikoAPI from './TikoAPI';
 import {PlatformConfig} from 'homebridge';
-import {ApolloClient, NormalizedCacheObject} from '@apollo/client/core';
+import {ApolloClient, ApolloError, NormalizedCacheObject} from '@apollo/client/core';
 import {getRoomQuery} from './queries/getRoomQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {TikoLoginResponse, TikoProperty, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {authenticationQuery} from './queries/authenticationQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
+import {TikoApiError} from './TikoApiError';
 
 describe('#build', () => {
   test('builds a TikoAPI service with default endpoint', () => {
@@ -92,6 +93,27 @@ describe('#authenticate', () => {
 
     // then
     expect(tikoApi.setPropertyId).toHaveBeenCalledWith(789);
+  });
+
+  test('catches ApolloError and throws TikoApiError', async () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      propertyId: 789,
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+    const error = new ApolloError({ errorMessage: 'An error occurred' });
+    clientMock.mutate.mockRejectedValue(error);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+
+    // when
+    const promise = tikoApi.authenticate();
+
+    // then
+    await expect(promise).rejects.toEqual(new TikoApiError('An error occurred'));
   });
 });
 

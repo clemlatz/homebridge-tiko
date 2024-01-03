@@ -3,9 +3,10 @@ import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
 import {TikoLoginResponse, TikoMode, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
-import {ApolloClient, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
+import {ApolloClient, ApolloError, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
+import {TikoApiError} from './TikoApiError';
 
 export default class TikoAPI {
   private propertyId: number | null = null;
@@ -19,23 +20,30 @@ export default class TikoAPI {
   public async authenticate() {
     const {login, password} = this.config;
 
-    const {data} = await this.client.mutate({
-      mutation: authenticationQuery,
-      variables: {
-        email: login,
-        password: password,
-        langCode: 'fr',
-        retainSession: true,
-      },
-    }) as TikoLoginResponse;
+    try {
+      const {data} = await this.client.mutate({
+        mutation: authenticationQuery,
+        variables: {
+          email: login,
+          password: password,
+          langCode: 'fr',
+          retainSession: true,
+        },
+      }) as TikoLoginResponse;
 
-    const userToken = data.logIn.token;
+      const userToken = data.logIn.token;
 
-    const authLink = TikoAPI._createApolloLink(this.config, userToken);
-    this.client.setLink(authLink);
+      const authLink = TikoAPI._createApolloLink(this.config, userToken);
+      this.client.setLink(authLink);
 
-    const defaultPropertyId = data.logIn.user.properties[0].id;
-    this.setPropertyId(this.config.propertyId || defaultPropertyId);
+      const defaultPropertyId = data.logIn.user.properties[0].id;
+      this.setPropertyId(this.config.propertyId || defaultPropertyId);
+    } catch(error) {
+      if (error instanceof ApolloError) {
+        throw new TikoApiError(error.message);
+      }
+    }
+
   }
 
   public setPropertyId(value: number | null) {
