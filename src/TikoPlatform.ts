@@ -4,6 +4,7 @@ import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {TikoAccessory} from './TikoAccessory';
 import TikoAPI from './TikoAPI';
 import {TikoRoom} from './types';
+import {TikoApiError} from './TikoApiError';
 
 export class TikoPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
@@ -32,8 +33,15 @@ export class TikoPlatform implements DynamicPlatformPlugin {
   }
 
   async discoverDevices() {
-    await this.tiko.authenticate();
-    this.log.debug(`Successfully logged in with account ${this.config.login}.`);
+    try {
+      await this.tiko.authenticate();
+      this.log.debug(`Successfully logged in with account ${this.config.login}.`);
+    } catch(error) {
+      if (error instanceof TikoApiError) {
+        this.log.error(`An error occured while trying to login: ${error.message}`);
+        return;
+      }
+    }
 
     const rooms = await this.tiko.getAllRooms();
 
