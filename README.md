@@ -1,15 +1,40 @@
+<p align="center">
+   <a href="https://github.com/clemlatz/homebridge-tiko"><img alt="homebridge-tiko logo" src="homebridge-tiko.png" width="600px"></a>
+</p>
+
+<span align="center">
+
 # homebridge-tiko
 
+Homebridge plugin to integrate [Tiko](https://www.tiko.fr) devices into HomeKit
+
+[![npm](https://img.shields.io/npm/v/homebridge-tiko/latest?label=latest)](https://www.npmjs.com/package/homebridge-tiko)
+[![npm](https://img.shields.io/npm/dt/homebridge-tiko)](https://www.npmjs.com/package/homebridge-tiko)
+
+</span>
+
+## Plugin Information
+
 The **homebridge-tiko** plugin allows you to control Tiko-connected heaters
-using Siri or the Apple Home app, by connecting the [Tiko](https://www.tiko.fr) 
+using Siri or the Apple Home app, by connecting the [Tiko](https://www.tiko.fr)
 platform to HomeKit through Homebridge.
 
-Features:
-- Displays current and target temperature for each room
-- Allows to set target temperature for each room
-- Allow to put a heater in "frost" mode by turning it off
+This plugin allows you to do the following using Siri 
+or the Home app on an iPhone, an iPad, an Apple Watch or a Mac:
+- Display current and target temperature for each room
+- Set target temperature for each room
+- Put a heater in "frost", "absence", "boost" or scheduled mode
+
+## Prerequisites
+
+- To use this plugin, you will need to already have:
+  - [Node](https://nodejs.org): latest version of `v18` or `v20` - any other major version is not supported.
+  - [Homebridge](https://homebridge.io): `v1.6` - refer to link for more information and installation instructions.
 
 ## Usage
+
+Tiko modes cannot be displayed in the Home app because Homekit thermostat's state cannot be personalised.
+Here's the equivalence between an HomeKit instruction and a Tiko state:
 
 | Apple Home instruction | Tiko mode                |
 |------------------------|--------------------------|
@@ -18,7 +43,7 @@ Features:
 | Heat (Chauffer)        | Boost                    |
 | Auto (Autom.)          | Schedule (Programmation) |
 
-## Installation instructions
+## Setup
 
 1. [Install and configure Homebridge](https://github.com/homebridge/homebridge/wiki)
 2. Search for "homebridge-tiko" in Homebridge's "Plugins" tab
@@ -41,7 +66,6 @@ You can find the correct property id in the Tiko dashboard url:
 ```
 https://particuliers-tiko.fr/dashboard/{propertyId}
 ```
-
 
 ## Development documentation
 
