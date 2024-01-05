@@ -25,6 +25,9 @@ or the Home app on an iPhone, an iPad, an Apple Watch or a Mac:
 - Set target temperature for each room
 - Put a heater in "frost", "absence", "boost" or scheduled mode
 
+### ![French flag](france.png) &nbsp;Vous parlez français ?
+[Guide d'installation et de configuration du plugin en français](https://blog.clemlatz.dev/blog/gerer-ses-radiateurs-tiko-avec-siri-et-apple-home/)
+
 ## Prerequisites
 
 - To use this plugin, you will need to already have:
