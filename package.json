@@ -44,7 +44,8 @@
   "dependencies": {
     "@apollo/client": "^3.8.8",
     "graphql": "^16.8.1",
-    "graphql-request": "^6.1.0"
+    "graphql-request": "^6.1.0",
+    "promise.timeout": "^1.1.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
