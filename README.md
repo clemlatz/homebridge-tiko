@@ -10,6 +10,7 @@ Homebridge plugin to integrate [Tiko](https://www.tiko.fr) devices into HomeKit
 
 [![npm](https://img.shields.io/npm/v/homebridge-tiko/latest?label=latest)](https://www.npmjs.com/package/homebridge-tiko)
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+[![build status](https://github.com/clemlatz/homebridge-tiko/actions/workflows/build.yml/badge.svg)](https://github.com/clemlatz/homebridge-tiko/actions/workflows/build.yml)
 [![npm](https://img.shields.io/npm/dt/homebridge-tiko)](https://www.npmjs.com/package/homebridge-tiko)
 
 </span>
