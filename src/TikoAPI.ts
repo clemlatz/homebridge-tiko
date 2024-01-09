@@ -3,7 +3,15 @@ import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
 import {TikoLoginResponse, TikoMode, TikoPropertyResponse, TikoRoom, TikoRoomResponse} from './types';
-import {ApolloClient, ApolloError, ApolloLink, createHttpLink, InMemoryCache, NormalizedCacheObject} from '@apollo/client/core';
+import {
+  ApolloClient,
+  ApolloError,
+  ApolloLink,
+  createHttpLink,
+  DocumentNode,
+  InMemoryCache,
+  NormalizedCacheObject,
+} from '@apollo/client/core';
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
 import {TikoApiError} from './TikoApiError';
@@ -22,14 +30,11 @@ export default class TikoAPI {
     const {login, password} = this.config;
 
     try {
-      const {data} = await this.client.mutate({
-        mutation: authenticationQuery,
-        variables: {
-          email: login,
-          password: password,
-          langCode: 'fr',
-          retainSession: true,
-        },
+      const {data} = await this._callTikoApi('mutate', authenticationQuery, {
+        email: login,
+        password: password,
+        langCode: 'fr',
+        retainSession: true,
       }) as TikoLoginResponse;
 
       const userToken = data.logIn.token;
@@ -54,10 +59,9 @@ export default class TikoAPI {
 
   public async getAllRooms(): Promise<TikoRoom[]> {
     try {
-      const propertyResponse = await this.client.query({
-        query: getPropertyQuery,
-        variables: {id: this.propertyId},
-      }) as TikoPropertyResponse;
+      const propertyResponse = await this._callTikoApi('query', getPropertyQuery,
+        {id: this.propertyId},
+      ) as TikoPropertyResponse;
       return propertyResponse.data.property.rooms;
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -70,11 +74,12 @@ export default class TikoAPI {
 
   public async getRoom(roomId: number): Promise<TikoRoom> {
     try {
-      const roomResponse = await this.client.query({
-        query: getRoomQuery,
-        variables: {propertyId: this.propertyId, roomId: roomId},
-        fetchPolicy: 'no-cache',
-      }) as TikoRoomResponse;
+      const roomResponse = await this._callTikoApi(
+        'query',
+        getRoomQuery,
+        {propertyId: this.propertyId, roomId: roomId},
+        'no-cache',
+      ) as TikoRoomResponse;
       return roomResponse.data.property.room;
     } catch (error) {
       if (error instanceof ApolloError) {
@@ -86,34 +91,35 @@ export default class TikoAPI {
   }
 
   public async setTargetTemperature(roomId: number, targetTemperature: number) {
-    try {
-      await this.client.mutate({
-        mutation: setTemperatureQuery,
-        variables: {
-          propertyId: this.propertyId,
-          roomId: roomId,
-          temperature: targetTemperature,
-        },
-      });
-    } catch (error) {
-      if (error instanceof ApolloError) {
-        throw new TikoApiError(error.message);
-      }
-
-      throw error;
-    }
+    await this._callTikoApi('mutate', setTemperatureQuery, {
+      propertyId: this.propertyId,
+      roomId: roomId,
+      temperature: targetTemperature,
+    });
   }
 
   public async setRoomMode(roomId: number, mode: TikoMode) {
+    const tikoMode = mode !== null ? mode : false;
+    await this._callTikoApi('mutate', setRoomModeQuery, {
+      propertyId: this.propertyId,
+      roomId,
+      mode: tikoMode,
+    });
+  }
+
+  private async _callTikoApi(
+    actionName: 'query' | 'mutate',
+    query: DocumentNode,
+    variables: object,
+    fetchPolicy: 'no-cache' | undefined = undefined,
+  ) {
     try {
-      await this.client.mutate({
-        mutation: setRoomModeQuery,
-        variables: {
-          propertyId: this.propertyId,
-          roomId,
-          mode: mode !== null ? mode : false,
-        },
-      });
+      if (actionName === 'query') {
+        return await this.client.query({query: query, variables: variables, fetchPolicy});
+      }
+      if (actionName === 'mutate') {
+        return await this.client.mutate({mutation: query, variables: variables});
+      }
     } catch (error) {
       if (error instanceof ApolloError) {
         throw new TikoApiError(error.message);
