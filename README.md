@@ -71,6 +71,11 @@ You can find the correct property id in the Tiko dashboard url:
 https://particuliers-tiko.fr/dashboard/{propertyId}
 ```
 
+## Acknowledgments
+
+Special thanks to [paulchartres](https://github.com/paulchartres) whose project [hass-tiko](https://github.com/paulchartres/hass-tiko/tree/master) helped 
+me a lot to understand Tiko's Api without doing a lot of retro-engineering.
+
 ## Development documentation
 
 ### Setup Development Environment
