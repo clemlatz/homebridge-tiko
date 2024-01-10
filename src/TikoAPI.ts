@@ -15,6 +15,8 @@ import {
 import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
 import {TikoApiError} from './TikoApiError';
+import {awaitUntilTimeout} from './timeout/awaitUntilTimeout';
+import {TimeoutError} from './timeout/TimeoutError';
 
 export default class TikoAPI {
   private propertyId: number | null = null;
@@ -91,13 +93,16 @@ export default class TikoAPI {
   ) {
     try {
       if (actionName === 'query') {
-        return await this.client.query({query: query, variables: variables, fetchPolicy});
+        return await awaitUntilTimeout(
+          this.client.query({query: query, variables: variables, fetchPolicy}),
+          this.config.timeout || 1000,
+        );
       }
       if (actionName === 'mutate') {
         return await this.client.mutate({mutation: query, variables: variables});
       }
     } catch (error) {
-      if (error instanceof ApolloError) {
+      if (error instanceof TimeoutError || error instanceof ApolloError) {
         throw new TikoApiError(error.message);
       }
 

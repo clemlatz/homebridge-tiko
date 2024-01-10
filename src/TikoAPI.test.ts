@@ -8,6 +8,7 @@ import {setTemperatureQuery} from './queries/setTemperatureQuery';
 import {authenticationQuery} from './queries/authenticationQuery';
 import {setRoomModeQuery} from './queries/setRoomMode';
 import {TikoApiError} from './TikoApiError';
+import {TimeoutError} from './timeout/TimeoutError';
 
 jest.mock('@apollo/client/core');
 
@@ -267,6 +268,28 @@ describe('#getRoom', () => {
 
     // then
     await expect(promise).rejects.toEqual(new TikoApiError('An error occurred'));
+  });
+
+  test('catches TimeoutError and throws TikoApiError', async () => {
+    // given
+    const configMock = {
+      platform: 'Tiko',
+      login: 'user@example.net',
+      password: 'p4ssw0rd',
+      propertyId: 789,
+      timeout: 2500,
+    } as PlatformConfig;
+    const clientMock = _mockClientAndRespond(null);
+    const error = new TimeoutError(2500);
+    clientMock.query.mockRejectedValue(error);
+
+    const tikoApi = new TikoAPI(configMock, clientMock);
+
+    // when
+    const promise = tikoApi.getRoom(1);
+
+    // then
+    await expect(promise).rejects.toEqual(new TikoApiError('Timeout of 2500 ms exceeded'));
   });
 });
 
