@@ -32,6 +32,12 @@
         "title": "Identifiant de propriété (facultatif)",
         "type": "number",
         "required": false
+      },
+      "timeout": {
+        "title": "Timeout (ms)",
+        "type": "number",
+        "required": false,
+        "placeholder": "1000"
       }
     }
   }
