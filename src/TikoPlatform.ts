@@ -2,22 +2,22 @@ import {API, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, S
 
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 import {TikoAccessory} from './TikoAccessory';
-import TikoAPI from './TikoAPI';
 import {TikoRoom} from './types';
 import {TikoApiError} from './TikoApiError';
+import TikoApiWithThrottle from './TikoApiWithThrottle';
 
 export class TikoPlatform implements DynamicPlatformPlugin {
   public readonly Service: typeof Service = this.api.hap.Service;
   public readonly Characteristic: typeof Characteristic = this.api.hap.Characteristic;
   public readonly accessories: PlatformAccessory[] = [];
-  public readonly tiko: TikoAPI;
+  public readonly tiko: TikoApiWithThrottle;
 
   constructor(
     public readonly log: Logger,
     public readonly config: PlatformConfig,
     public readonly api: API,
   ) {
-    this.tiko = TikoAPI.build(config);
+    this.tiko = TikoApiWithThrottle.build(config);
 
     if (!this.config.name) {
       this.log.error('Missing required parameter "name" in config');
