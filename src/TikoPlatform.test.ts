@@ -2,6 +2,7 @@ import TikoAPI from './TikoAPI';
 import {API, Logger, PlatformConfig} from 'homebridge';
 import {TikoPlatform} from './TikoPlatform';
 import {TikoApiError} from './TikoApiError';
+import TikoApiWithThrottle from './TikoApiWithThrottle';
 
 jest.mock('./TikoAPI');
 
@@ -59,8 +60,8 @@ describe('#discoverDevices', () => {
     const tikoApiMock = {
       authenticate: jest.fn(),
       getAllRooms: jest.fn(() => []),
-    } as unknown as TikoAPI;
-    TikoAPI.build = jest.fn(() => tikoApiMock);
+    } as unknown as TikoApiWithThrottle;
+    TikoApiWithThrottle.build = jest.fn(() => tikoApiMock);
 
     const tikoPlatform = new TikoPlatform(logMock, configMock, homebridgeApi);
 
@@ -68,7 +69,7 @@ describe('#discoverDevices', () => {
     await tikoPlatform.discoverDevices();
 
     // then
-    expect(TikoAPI.build).toHaveBeenCalled();
+    expect(TikoApiWithThrottle.build).toHaveBeenCalled();
     expect(tikoApiMock.authenticate).toHaveBeenCalled();
     expect(tikoApiMock.getAllRooms).toHaveBeenCalled();
   });
@@ -87,8 +88,8 @@ describe('#discoverDevices', () => {
     const tikoApiMock = {
       authenticate: jest.fn().mockRejectedValue(new TikoApiError('Oops!')),
       getAllRooms: jest.fn(() => []),
-    } as unknown as TikoAPI;
-    TikoAPI.build = jest.fn(() => tikoApiMock);
+    } as unknown as TikoApiWithThrottle;
+    TikoApiWithThrottle.build = jest.fn(() => tikoApiMock);
 
     const tikoPlatform = new TikoPlatform(logMock, configMock, homebridgeApi);
 
