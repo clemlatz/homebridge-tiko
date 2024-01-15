@@ -111,11 +111,14 @@ export default class TikoAPI {
   }
 
   static build(config: PlatformConfig): TikoAPI {
-    const client = new ApolloClient({
+    const client = this._createApolloClient();
+    return new TikoAPI(config, client);
+  }
+
+  protected static _createApolloClient() {
+    return new ApolloClient({
       cache: new InMemoryCache(),
     });
-
-    return new TikoAPI(config, client);
   }
 
   private static _createApolloLink(config: PlatformConfig, userToken: string | null = null): ApolloLink {
