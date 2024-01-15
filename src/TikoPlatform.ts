@@ -53,7 +53,7 @@ export class TikoPlatform implements DynamicPlatformPlugin {
       this.log.debug(`Successfully logged in with account ${this.config.login}.`);
     } catch(error) {
       if (error instanceof TikoApiError) {
-        this.log.error(`An error occured while trying to login: ${error.message}`);
+        this.log.error(`An error occurred while trying to login: ${error.message}`);
         return;
       }
     }

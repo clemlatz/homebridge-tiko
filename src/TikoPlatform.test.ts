@@ -97,7 +97,7 @@ describe('#discoverDevices', () => {
     await tikoPlatform.discoverDevices();
 
     // then
-    expect(logMock.error).toHaveBeenCalledWith('An error occured while trying to login: Oops!');
+    expect(logMock.error).toHaveBeenCalledWith('An error occurred while trying to login: Oops!');
     expect(tikoApiMock.getAllRooms).not.toHaveBeenCalled();
   });
 });
