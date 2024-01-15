@@ -6,7 +6,7 @@
 
 # homebridge-tiko
 
-Homebridge plugin to integrate [Tiko](https://www.tiko.fr) devices into HomeKit
+Homebridge plugin to integrate [Tiko](https://www.tiko.fr) / [Mon Pilotage Elec](https://particuliers.engie.fr/landing/mon-pilotage-elec-sea.html) devices into HomeKit
 
 [![npm](https://img.shields.io/npm/v/homebridge-tiko/latest?label=latest)](https://www.npmjs.com/package/homebridge-tiko)
 [![verified-by-homebridge](https://badgen.net/badge/homebridge/verified/purple)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
@@ -19,6 +19,7 @@ Homebridge plugin to integrate [Tiko](https://www.tiko.fr) devices into HomeKit
 
 The **homebridge-tiko** plugin allows you to control Tiko-connected heaters
 using Siri or the Apple Home app, by connecting the [Tiko](https://www.tiko.fr)
+(a.k.a. [Mon Pilotage Elec](https://particuliers.engie.fr/landing/mon-pilotage-elec-sea.html))
 platform to HomeKit through Homebridge.
 
 This plugin allows you to do the following using Siri 
