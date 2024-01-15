@@ -38,6 +38,8 @@
     "homebridge-plugin",
     "homebridge-tiko",
     "tiko",
+    "mon-pilotage-elec",
+    "engie",
     "homekit",
     "siri"
   ],
