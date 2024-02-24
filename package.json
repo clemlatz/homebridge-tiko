@@ -2,7 +2,7 @@
   "private": false,
   "displayName": "Tiko",
   "name": "homebridge-tiko",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Homebridge plugin to integrate Tiko-controlled heaters into HomeKit.",
   "author": {
     "name": "Clément Latzarus",
