@@ -100,6 +100,32 @@ describe('#discoverDevices', () => {
     expect(logMock.error).toHaveBeenCalledWith('An error occurred while trying to login: Oops!');
     expect(tikoApiMock.getAllRooms).not.toHaveBeenCalled();
   });
+
+  test('handles and logs api errors', async () => {
+    const logMock = {
+      debug: jest.fn(),
+      error: jest.fn(),
+    } as unknown as Logger;
+    const configMock = {} as PlatformConfig;
+    const homebridgeApi = {
+      hap: {},
+      on: jest.fn(),
+    } as unknown as API;
+
+    const tikoApiMock = {
+      authenticate: jest.fn(() => []),
+      getAllRooms: jest.fn().mockRejectedValue(new TikoApiError('Oops!')),
+    } as unknown as TikoApiWithThrottle;
+    TikoApiWithThrottle.build = jest.fn(() => tikoApiMock);
+
+    const tikoPlatform = new TikoPlatform(logMock, configMock, homebridgeApi);
+
+    // when
+    await tikoPlatform.discoverDevices();
+
+    // then
+    expect(logMock.error).toHaveBeenCalledWith('An error occurred while trying to get rooms: Oops!');
+  });
 });
 
 function _buildMocks() {

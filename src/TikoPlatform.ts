@@ -51,25 +51,31 @@ export class TikoPlatform implements DynamicPlatformPlugin {
     try {
       await this.tiko.authenticate();
       this.log.debug(`Successfully logged in with account ${this.config.login}.`);
-    } catch(error) {
+    } catch (error) {
       if (error instanceof TikoApiError) {
         this.log.error(`An error occurred while trying to login: ${error.message}`);
         return;
       }
     }
 
-    const rooms = await this.tiko.getAllRooms();
+    try {
+      const rooms = await this.tiko.getAllRooms();
+      this._removeRoomNotExisting(rooms);
 
-    this._removeRoomNotExisting(rooms);
+      for (const room of rooms) {
+        const uuid = this.api.hap.uuid.generate(room.id.toString());
+        const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
 
-    for (const room of rooms) {
-      const uuid = this.api.hap.uuid.generate(room.id.toString());
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
-
-      if (existingAccessory) {
-        this._updateExistingRoom(existingAccessory, room);
-      } else {
-        this._createNewRoom(room, uuid);
+        if (existingAccessory) {
+          this._updateExistingRoom(existingAccessory, room);
+        } else {
+          this._createNewRoom(room, uuid);
+        }
+      }
+    } catch (error) {
+      if (error instanceof TikoApiError) {
+        this.log.error(`An error occurred while trying to get rooms: ${error.message}`);
+        return;
       }
     }
   }
