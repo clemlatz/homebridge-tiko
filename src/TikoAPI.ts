@@ -1,4 +1,6 @@
 import {PlatformConfig} from 'homebridge';
+import * as setCookieParser from 'set-cookie-parser';
+
 import {authenticationQuery} from './queries/authenticationQuery';
 import {getPropertyQuery} from './queries/getPropertyQuery';
 import {getRoomQuery} from './queries/getRoomQuery';
@@ -18,8 +20,14 @@ import {TikoApiError} from './TikoApiError';
 import {awaitUntilTimeout} from './timeout/awaitUntilTimeout';
 import {TimeoutError} from './timeout/TimeoutError';
 
+type Cookie = {
+  name: string;
+  value: string;
+};
+
 export default class TikoAPI {
   private propertyId: number | null = null;
+  private cookies: Cookie[] = [];
 
   constructor(
     private config: PlatformConfig,
@@ -114,21 +122,38 @@ export default class TikoAPI {
     const requestUrl = config.endpoint ?? 'https://particuliers-tiko.fr/api/v3/graphql/';
     const httpLink = createHttpLink({uri: requestUrl});
 
+    const cookiesLink = new ApolloLink((operation, forward) => {
+      return forward(operation).map((response) => {
+        const context = operation.getContext();
+        const setCookieHeader = context.response.headers.get('set-cookie');
+        if (setCookieHeader) {
+          const cookieStrings = setCookieParser.splitCookiesString(setCookieHeader);
+          this.cookies = cookieStrings.map((cookieString) => setCookieParser.parseString(cookieString));
+        }
+        return response;
+      });
+    });
+
+    const httpLinkWithCookies = cookiesLink.concat(httpLink);
+
     if (!userToken) {
-      return httpLink;
+      return httpLinkWithCookies;
     }
 
     const authLink = new ApolloLink((operation, forward) => {
-      operation.setContext(({headers}) => ({
-        headers: {
-          ...headers,
-          authorization: `token ${userToken}`,
-        },
-      }));
+      operation.setContext(({headers}) => {
+        return ({
+          headers: {
+            ...headers,
+            authorization: `token ${userToken}`,
+            cookie: this.cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; '),
+          },
+        });
+      });
       return forward(operation);
     });
 
-    return authLink.concat(httpLink);
+    return authLink.concat(httpLinkWithCookies);
   }
 
   static build(config: PlatformConfig): TikoAPI {
