@@ -25,7 +25,7 @@ export default class TikoAPI {
     private config: PlatformConfig,
     private client: ApolloClient<NormalizedCacheObject>,
   ) {
-    client.setLink(TikoAPI._createApolloLink(config));
+    client.setLink(this._createApolloLink(config));
   }
 
   public async authenticate() {
@@ -40,7 +40,7 @@ export default class TikoAPI {
 
     const userToken = data.logIn.token;
 
-    const authLink = TikoAPI._createApolloLink(this.config, userToken);
+    const authLink = this._createApolloLink(this.config, userToken);
     this.client.setLink(authLink);
 
     const defaultPropertyId = data.logIn.user.properties[0].id;
@@ -110,18 +110,7 @@ export default class TikoAPI {
     }
   }
 
-  static build(config: PlatformConfig): TikoAPI {
-    const client = this._createApolloClient();
-    return new TikoAPI(config, client);
-  }
-
-  protected static _createApolloClient() {
-    return new ApolloClient({
-      cache: new InMemoryCache(),
-    });
-  }
-
-  private static _createApolloLink(config: PlatformConfig, userToken: string | null = null): ApolloLink {
+  private _createApolloLink(config: PlatformConfig, userToken: string | null = null): ApolloLink {
     const requestUrl = config.endpoint ?? 'https://particuliers-tiko.fr/api/v3/graphql/';
     const httpLink = createHttpLink({uri: requestUrl});
 
@@ -140,5 +129,16 @@ export default class TikoAPI {
     });
 
     return authLink.concat(httpLink);
+  }
+
+  static build(config: PlatformConfig): TikoAPI {
+    const client = this._createApolloClient();
+    return new TikoAPI(config, client);
+  }
+
+  protected static _createApolloClient() {
+    return new ApolloClient({
+      cache: new InMemoryCache(),
+    });
   }
 }
