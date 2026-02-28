@@ -1,3 +1,12 @@
+
+> [!WARNING]
+> **DEPRECATED**
+> 
+> Following the discontinuation of the Tiko service, this plugin is no longer maintained and will not be updated.
+> 
+> ![French flag](france.png) Suite à l'arrêt du service Tiko, ce plugin n'est plus maintenu et ne sera plus mis à jour.
+
+
 <p align="center">
    <a href="https://github.com/clemlatz/homebridge-tiko"><img alt="homebridge-tiko logo" src="homebridge-tiko.png" width="600px"></a>
 </p>
